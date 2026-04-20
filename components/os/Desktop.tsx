@@ -287,9 +287,9 @@ const DesktopIcon: React.FC<{
         "flex flex-col items-center gap-1 group cursor-default select-none transition-all rounded-lg hover:bg-black/5 dark:hover:bg-white/10 border border-transparent hover:border-black/5 dark:hover:border-white/10",
         isMobile ? "p-1" : "p-2"
       )}>
-        {React.cloneElement(iconForItem() as React.ReactElement, { 
+        {React.cloneElement(iconForItem() as React.ReactElement<{ className?: string }>, { 
           className: cn(
-            (iconForItem() as React.ReactElement).props.className,
+            (iconForItem() as React.ReactElement<{ className?: string }>).props.className,
             isMobile ? "w-10 h-10" : "w-12 h-12"
           ) 
         })}

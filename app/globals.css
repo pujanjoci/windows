@@ -3,20 +3,31 @@
 :root {
   --background: #f3f3f3;
   --foreground: #1a1a1a;
-  --accent-color: #3b82f6;
+  --accent-color: #0078d4;
+  --window-bg: rgba(255, 255, 255, 0.75);
+  --window-border: rgba(0, 0, 0, 0.1);
+  --taskbar-bg: rgba(243, 243, 243, 0.85);
+  --border-radius: 12px;
+  --font-family: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+  --header-bg: rgba(243, 243, 243, 0.5);
+  --window-title-color: #1a1a1a;
 }
 
 .dark {
-  --background: #000000;
-  --foreground: #ffffff;
+  --background: #0a0d14;
+  --foreground: #e1e8f0;
+  --window-bg: rgba(20, 24, 33, 0.75);
+  --window-border: rgba(255, 255, 255, 0.08);
+  --taskbar-bg: rgba(13, 17, 23, 0.85);
+  --header-bg: rgba(13, 17, 23, 0.5);
+  --window-title-color: #e1e8f0;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-accent: var(--accent-color);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-family);
 }
 
 body {
@@ -30,24 +41,17 @@ body {
 
 @layer utilities {
   .glass {
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-  }
-
-  .glass-dark {
-    background: rgba(0, 0, 0, 0.4);
+    background: var(--window-bg);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--window-border);
   }
 
   .terminal-cursor {
     display: inline-block;
     width: 8px;
     height: 18px;
-    background-color: #ffffff;
+    background-color: currentColor;
     animation: blink 1s step-end infinite;
     vertical-align: middle;
     margin-left: 4px;
@@ -67,16 +71,18 @@ body {
   }
 
   .custom-scrollbar::-webkit-scrollbar {
-    width: 6px;
+    width: 8px;
+    height: 8px;
   }
   .custom-scrollbar::-webkit-scrollbar-track {
     background: transparent;
   }
   .custom-scrollbar::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.15);
-    border-radius: 3px;
+    background: rgba(128, 128, 128, 0.3);
+    border-radius: 4px;
   }
   .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.3);
+    background: rgba(128, 128, 128, 0.5);
   }
 }
+

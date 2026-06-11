@@ -2,11 +2,21 @@
 
 import React, { createContext, useContext, useState, useEffect } from "react";
 
-export type ThemeMode = "light" | "dark" | "system";
+export type ThemeName = "win11";
+
+export const DEFAULT_WALLPAPERS: Record<ThemeName, string> = {
+  win11: "/wallpaper.jpg",
+};
+
+export const DEFAULT_ACCENTS: Record<ThemeName, string> = {
+  win11: "#0078d4", // Windows Blue
+};
 
 type ThemeContextType = {
-  theme: ThemeMode;
-  setTheme: (theme: ThemeMode) => void;
+  theme: ThemeName;
+  setTheme: (theme: ThemeName) => void;
+  isDark: boolean;
+  setIsDark: (dark: boolean) => void;
   wallpaper: string;
   setWallpaper: (url: string) => void;
   accentColor: string;
@@ -16,57 +26,69 @@ type ThemeContextType = {
 const ThemeContext = createContext<ThemeContextType | null>(null);
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [theme, setThemeState] = useState<ThemeMode>("dark");
-  const [wallpaper, setWallpaperState] = useState("/wallpaper.jpg");
-  const [accentColor, setAccentColorState] = useState("#3b82f6"); // Blue-500
+  const [theme] = useState<ThemeName>("win11");
+  const [isDark, setIsDarkState] = useState(true);
+  const [wallpaper, setWallpaperState] = useState(DEFAULT_WALLPAPERS.win11);
+  const [accentColor, setAccentColorState] = useState(DEFAULT_ACCENTS.win11);
+  const [isLoaded, setIsLoaded] = useState(false);
 
   // Load from local storage on mount
   useEffect(() => {
-    const savedTheme = localStorage.getItem("os-theme") as ThemeMode;
-    const savedWallpaper = localStorage.getItem("os-wallpaper");
-    const savedAccent = localStorage.getItem("os-accent");
+    const savedWallpaper = localStorage.getItem("os-wallpaper-v3");
+    const savedAccent = localStorage.getItem("os-accent-v3");
+    const savedDark = localStorage.getItem("os-dark-mode-v3");
 
-    if (savedTheme) setThemeState(savedTheme);
     if (savedWallpaper) setWallpaperState(savedWallpaper);
     if (savedAccent) setAccentColorState(savedAccent);
+    if (savedDark !== null) setIsDarkState(savedDark === "true");
+    
+    setIsLoaded(true);
   }, []);
 
   // Sync theme to document class
   useEffect(() => {
-    const root = window.document.documentElement;
-    root.classList.remove("light", "dark");
-    
-    if (theme === "system") {
-      const systemTheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-      root.classList.add(systemTheme);
-    } else {
-      root.classList.add(theme);
-    }
-    
-    localStorage.setItem("os-theme", theme);
-  }, [theme]);
+    if (!isLoaded) return;
 
-  const setTheme = (t: ThemeMode) => setThemeState(t);
+    const root = window.document.documentElement;
+    root.classList.remove("theme-win11", "theme-dark", "theme-xp", "dark");
+    root.classList.add("theme-win11");
+    if (isDark) {
+      root.classList.add("dark");
+    }
+
+    localStorage.setItem("os-theme", "win11");
+    localStorage.setItem("os-dark-mode-v3", String(isDark));
+  }, [isDark, isLoaded]);
+
+  const setTheme = (t: ThemeName) => {
+    // No-op or lock to win11
+  };
+
+  const setIsDark = (dark: boolean) => {
+    setIsDarkState(dark);
+  };
   
   const setWallpaper = (url: string) => {
     setWallpaperState(url);
-    localStorage.setItem("os-wallpaper", url);
+    localStorage.setItem("os-wallpaper-v3", url);
   };
 
   const setAccentColor = (color: string) => {
     setAccentColorState(color);
-    localStorage.setItem("os-accent", color);
-    document.documentElement.style.setProperty("--accent-color", color);
+    localStorage.setItem("os-accent-v3", color);
   };
 
   useEffect(() => {
+    if (!isLoaded) return;
     document.documentElement.style.setProperty("--accent-color", accentColor);
-  }, [accentColor]);
+  }, [accentColor, isLoaded]);
 
   return (
     <ThemeContext.Provider value={{ 
       theme, 
-      setTheme, 
+      setTheme,
+      isDark,
+      setIsDark,
       wallpaper, 
       setWallpaper, 
       accentColor, 

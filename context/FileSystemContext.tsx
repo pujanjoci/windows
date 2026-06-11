@@ -23,71 +23,83 @@ type FileSystemAction =
   | { type: "RENAME_ITEM"; payload: { id: string; newName: string } }
   | { type: "DELETE_ITEM"; payload: { id: string } }
   | { type: "MOVE_ITEM"; payload: { id: string; newParentId: string | null } }
+  | { type: "UPDATE_ITEM_CONTENT"; payload: { id: string; content: string } }
   | { type: "UPDATE_ITEM_POSITION"; payload: { id: string; x: number; y: number } }
   | { type: "RESET_ITEM_POSITION"; payload: { id: string } }
   | { type: "RESET_ALL_POSITIONS"; payload: { parentId: string } };
 
-// Bump this when initial structure changes to force a reset of stale caches
-const CURRENT_VERSION = 9;
+// Bump this to force a reset of stale local storage caches
+const CURRENT_VERSION = 14;
 
-const PROJECT_DOC = `# Website Redesign Project
+const ABOUT_ME_TXT = `Hi! I'm Pujan Joshi, a passionate React and TypeScript Frontend Engineer.
+I specialize in building rich, interactive, and high-performance web applications with stunning user interfaces and smooth user experiences.
 
-## Overview
-A comprehensive redesign of the company website to improve user experience,
-modernize the visual identity, and boost conversion rates.
+Main Tech Stack:
+- Frontend: React, Next.js, TypeScript, JavaScript
+- Styling: Tailwind CSS, CSS Custom Properties
+- State & Animation: Zustand, React Context, Framer Motion
+- Database & Backend: PostgreSQL, Prisma, Node.js
 
-## Timeline
-| Phase | Duration | Status |
-|-------|----------|--------|
-| Discovery & Research | 2 weeks | ✅ Complete |
-| Wireframes & UX | 3 weeks | ✅ Complete |
-| Visual Design | 2 weeks | 🔄 In Progress |
-| Frontend Development | 4 weeks | ⏳ Upcoming |
-| Backend Integration | 3 weeks | ⏳ Upcoming |
-| QA & Launch | 2 weeks | ⏳ Upcoming |
+I enjoy turning complex requirements into beautiful, accessible, and performant code.
+Feel free to browse around my simulated Web OS to explore my projects, photos, and contact information!`;
+
+const CONTACT_TXT = `You can connect with me through the following channels:
+
+- Email: contact@pujan-joshi.com.np
+- GitHub: https://github.com/pujanjoci
+- LinkedIn: https://www.linkedin.com/in/pujan-joshi-np/
+- Website: https://pujan-joshi.com.np
+
+Feel free to visit my live website in the browser in my projects or in the desktop!`;
+
+const WINDOWS_OS_CLONE_MD = `# Windows OS Clone Simulation
+A high-fidelity Windows-inspired operating system simulation built inside a web browser.
 
 ## Tech Stack
-- **Framework:** Next.js 16 (App Router)
-- **Styling:** Tailwind CSS v4
-- **Animation:** Framer Motion
-- **Database:** PostgreSQL + Prisma
-- **Hosting:** Vercel
+- React 19
+- Next.js 16 (App Router)
+- TypeScript
+- Framer Motion
+- Tailwind CSS v4
 
-## Key Features
-1. Dark mode support with system preference detection
-2. Responsive design (mobile-first approach)
-3. Glassmorphism UI components
-4. Real-time collaboration tools
-5. SEO-optimized content structure
+## Features
+- Drag, resize, and edge snap windows (left/right)
+- Custom Notepad, Calculator, and Image Viewer applications
+- Themes support: Windows 11, Windows XP, and Dark
+- Persisted desktop state (localStorage)
+- Boot screen animation and login screen
+- Clock date calendar and notification center tray`;
 
-## Team
-- **Lead Designer:** Jane Smith
-- **Frontend Dev:** John Doe
-- **Backend Dev:** Alice Johnson
-- **PM:** Bob Williams
+const PORTFOLIO_V2_MD = `# Personal Portfolio Website v2
+My personal web portfolio showing my developer journey, skills, and projects.
 
-## Notes
-- Design system tokens finalized in Figma
-- Component library shared across all projects
-- Weekly standup every Monday at 10 AM
-`;
+## Tech Stack
+- Astro
+- React (Islands Architecture)
+- Tailwind CSS
+- Three.js (3D Interactive Hero)
 
-const APP_IDEAS_DOC = `# App Ideas Backlog
+## Features
+- Ultra-fast page load times (Zero JS by default)
+- Interactive 3D graphics in the background
+- Clean, responsive design for all screen sizes
+- Integrates blog posts written in Markdown`;
 
-## 🔥 High Priority
-1. **AI Code Assistant** — VS Code extension with context-aware suggestions
-2. **Web OS Simulation** — Browser-based desktop environment (this project!)
-3. **Task Manager Pro** — Kanban + Calendar hybrid with AI prioritization
+const ECOMMERCE_APP_MD = `# Full-Stack E-Commerce Application
+A modern, production-ready e-commerce platform with stripe checkout and admin portal.
 
-## 💡 Exploration
-4. Recipe social network with meal planning
-5. Personal finance dashboard with bank sync
-6. Habit tracker with streak gamification
+## Tech Stack
+- Next.js
+- Tailwind CSS
+- Prisma + PostgreSQL
+- Stripe API
+- Zustand
 
-## 🗂️ Archived
-- Chat app (market saturated)
-- Note-taking app (too competitive)
-`;
+## Features
+- Real-time cart management and checkout
+- Admin panel for managing products, categories, and orders
+- Responsive product grids and search filtering
+- User authentication and order history tracking`;
 
 const initialState: FileSystemState = {
   version: CURRENT_VERSION,
@@ -97,36 +109,60 @@ const initialState: FileSystemState = {
     guest: { id: "guest", name: "Guest", type: "folder", parentId: "users", createdAt: Date.now() },
     desktop: { id: "desktop", name: "Desktop", type: "folder", parentId: "guest", createdAt: Date.now() },
     
-    // Gallery
-    gallery: { id: "gallery", name: "Gallery", type: "folder", parentId: "desktop", createdAt: Date.now() },
-    wallpapers: { id: "wallpapers", name: "Wallpapers", type: "folder", parentId: "gallery", createdAt: Date.now() },
-    wp_default: { id: "wp_default", name: "Desktop Wallpaper.jpg", type: "file", parentId: "wallpapers", content: "/wallpaper.jpg", createdAt: Date.now() },
+    // My Computer folder on desktop
+    my_computer: { id: "my_computer", name: "My Computer", type: "folder", parentId: "desktop", createdAt: Date.now() },
+    c_drive: { id: "c_drive", name: "Local Drive (C:)", type: "folder", parentId: "my_computer", createdAt: Date.now() },
+    user_folder: { id: "user_folder", name: "User", type: "folder", parentId: "c_drive", createdAt: Date.now() },
+    about_me_c: { id: "about_me_c", name: "About Me.txt", type: "file", parentId: "c_drive", content: ABOUT_ME_TXT, createdAt: Date.now() },
+    downloads: { id: "downloads", name: "Downloads", type: "folder", parentId: "user_folder", createdAt: Date.now() },
     
-    // Projects
+    // Documents inside User folder
+    documents: { id: "documents", name: "Documents", type: "folder", parentId: "user_folder", createdAt: Date.now() },
+    
+    // Files on desktop
+    contact: { id: "contact", name: "Contact.txt", type: "file", parentId: "desktop", content: CONTACT_TXT, createdAt: Date.now() },
+    resume: { id: "resume", name: "Resume.pdf", type: "file", parentId: "desktop", content: "/resume.pdf", createdAt: Date.now() },
+    
+    // Projects folder inside desktop
     projects: { id: "projects", name: "Projects", type: "folder", parentId: "desktop", createdAt: Date.now() },
-    web_redesign: { id: "web_redesign", name: "Website Redesign", type: "folder", parentId: "projects", createdAt: Date.now() },
-    project_doc: { id: "project_doc", name: "Project Brief.md", type: "file", parentId: "web_redesign", content: PROJECT_DOC, createdAt: Date.now() },
-    app_ideas: { id: "app_ideas", name: "App Ideas.md", type: "file", parentId: "projects", content: APP_IDEAS_DOC, createdAt: Date.now() },
+    win_os_clone_dir: { id: "win_os_clone_dir", name: "windows-os-clone", type: "folder", parentId: "projects", createdAt: Date.now() },
+    win_os_clone_readme: { id: "win_os_clone_readme", name: "README.md", type: "file", parentId: "win_os_clone_dir", content: WINDOWS_OS_CLONE_MD, createdAt: Date.now() },
     
-    // Documents
-    documents: { id: "documents", name: "Documents", type: "folder", parentId: "desktop", createdAt: Date.now() },
-    resume: { id: "resume", name: "Resume.pdf", type: "file", parentId: "documents", content: "/resume.pdf", createdAt: Date.now() },
+    portfolio_v2_dir: { id: "portfolio_v2_dir", name: "portfolio-v2", type: "folder", parentId: "projects", createdAt: Date.now() },
+    portfolio_v2_readme: { id: "portfolio_v2_readme", name: "README.md", type: "file", parentId: "portfolio_v2_dir", content: PORTFOLIO_V2_MD, createdAt: Date.now() },
     
-    // Shortcuts
-    internet_lnk: { id: "internet_lnk", name: "The Internet.lnk", type: "file", parentId: "desktop", content: "app:browser", createdAt: Date.now() },
+    ecommerce_app_dir: { id: "ecommerce_app_dir", name: "ecommerce-app", type: "folder", parentId: "projects", createdAt: Date.now() },
+    ecommerce_app_readme: { id: "ecommerce_app_readme", name: "README.md", type: "file", parentId: "ecommerce_app_dir", content: ECOMMERCE_APP_MD, createdAt: Date.now() },
+
+    // Photos folder inside desktop
+    photos: { id: "photos", name: "Photos", type: "folder", parentId: "desktop", createdAt: Date.now() },
+    photo_1: { id: "photo_1", name: "profile-1.jpg", type: "file", parentId: "photos", content: "/profile-1.jpg", createdAt: Date.now() },
+    photo_2: { id: "photo_2", name: "profile-2.jpg", type: "file", parentId: "photos", content: "/profile-2.jpg", createdAt: Date.now() },
+    photo_3: { id: "photo_3", name: "profile-3.jpg", type: "file", parentId: "photos", content: "/profile-3.jpg", createdAt: Date.now() },
+    photo_4: { id: "photo_4", name: "profile-4.jpg", type: "file", parentId: "photos", content: "/profile-4.jpg", createdAt: Date.now() },
+    photo_5: { id: "photo_5", name: "profile-5.jpg", type: "file", parentId: "photos", content: "/profile-5.jpg", createdAt: Date.now() },
+    photo_6: { id: "photo_6", name: "profile-6.jpg", type: "file", parentId: "photos", content: "/profile-6.jpg", createdAt: Date.now() },
+    photo_7: { id: "photo_7", name: "profile-7.jpg", type: "file", parentId: "photos", content: "/profile-7.jpg", createdAt: Date.now() },
+    photo_8: { id: "photo_8", name: "profile-8.jpg", type: "file", parentId: "photos", content: "/profile-8.jpg", createdAt: Date.now() },
+    photo_9: { id: "photo_9", name: "profile-9.jpg", type: "file", parentId: "photos", content: "/profile-9.jpg", createdAt: Date.now() },
+
+    // Shortcuts and templates in Documents / Downloads
+    readme_downloads: { id: "readme_downloads", name: "Welcome.txt", type: "file", parentId: "downloads", content: "Welcome to Downloads! You can drag files here.", createdAt: Date.now() },
+    doc_notes: { id: "doc_notes", name: "Ideas.txt", type: "file", parentId: "documents", content: "Write down portfolio project ideas here.", createdAt: Date.now() },
+
+    internet_lnk: { id: "internet_lnk", name: "Browser", type: "file", parentId: "desktop", content: "app:browser", createdAt: Date.now() },
   },
   rootId: "root",
 };
 
-// Lazy initializer: runs once, synchronously, before first render
 function loadInitialState(): FileSystemState {
   if (typeof window === "undefined") return initialState;
   
+  const storageKey = `web_os_fs_v${CURRENT_VERSION}`;
   try {
-    const saved = localStorage.getItem("web_os_fs_v5");
+    const saved = localStorage.getItem(storageKey);
     if (saved) {
       const parsed = JSON.parse(saved);
-      // Only use saved state if version matches
       if (parsed && parsed.version === CURRENT_VERSION && parsed.items && Object.keys(parsed.items).length > 0) {
         return parsed;
       }
@@ -135,8 +171,7 @@ function loadInitialState(): FileSystemState {
     console.error("Failed to load FS state", e);
   }
   
-  // Clear stale data and return fresh state
-  localStorage.removeItem("web_os_fs_v5");
+  localStorage.removeItem(storageKey);
   return initialState;
 }
 
@@ -162,6 +197,17 @@ const fileSystemReducer = (state: FileSystemState, action: FileSystemAction): Fi
           [action.payload.id]: {
             ...state.items[action.payload.id],
             name: action.payload.newName,
+          },
+        },
+      };
+    case "UPDATE_ITEM_CONTENT":
+      return {
+        ...state,
+        items: {
+          ...state.items,
+          [action.payload.id]: {
+            ...state.items[action.payload.id],
+            content: action.payload.content,
           },
         },
       };
@@ -236,17 +282,15 @@ const FileSystemContext = createContext<{
 } | null>(null);
 
 export const FileSystemProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // Lazy init: loads from localStorage synchronously before first render — no race condition
   const [state, dispatch] = useReducer(fileSystemReducer, undefined, loadInitialState);
   const isFirstRender = useRef(true);
 
-  // Save to localStorage on every state change EXCEPT the initial load
   useEffect(() => {
     if (isFirstRender.current) {
       isFirstRender.current = false;
       return;
     }
-    localStorage.setItem("web_os_fs_v5", JSON.stringify(state));
+    localStorage.setItem(`web_os_fs_v${CURRENT_VERSION}`, JSON.stringify(state));
   }, [state]);
 
   const getItemPath = useCallback((id: string): string => {

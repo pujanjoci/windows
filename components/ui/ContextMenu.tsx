@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { cn } from "@/lib/utils";
 
 export type ContextMenuItem = {
@@ -20,6 +21,11 @@ interface ContextMenuProps {
 export const ContextMenu: React.FC<ContextMenuProps> = ({ x, y, items, onClose }) => {
   const menuRef = useRef<HTMLDivElement>(null);
   const [position, setPosition] = useState({ x, y });
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (menuRef.current) {
@@ -36,7 +42,7 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({ x, y, items, onClose }
 
       setPosition({ x: newX, y: newY });
     }
-  }, [x, y]);
+  }, [x, y, mounted]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -49,7 +55,9 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({ x, y, items, onClose }
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [onClose]);
 
-  return (
+  if (!mounted) return null;
+
+  return createPortal(
     <div
       ref={menuRef}
       className={cn(
@@ -73,6 +81,7 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({ x, y, items, onClose }
           {item.divider && <div className="my-1 border-t border-white/10" />}
         </React.Fragment>
       ))}
-    </div>
+    </div>,
+    document.body
   );
 };

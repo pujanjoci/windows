@@ -71,7 +71,6 @@ export const BootScreen: React.FC<BootScreenProps> = ({ onComplete }) => {
     // Simulate login validation delay
     setTimeout(() => {
       sessionStorage.setItem("web_os_booted", "true");
-      setPhase("complete");
       onComplete();
     }, 800);
   };
@@ -79,7 +78,12 @@ export const BootScreen: React.FC<BootScreenProps> = ({ onComplete }) => {
   if (phase === "complete") return null;
 
   return (
-    <div className="absolute inset-0 z-[99999] bg-black select-none overflow-hidden font-sans">
+    <motion.div
+      initial={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.5 }}
+      className="absolute inset-0 z-[99999] bg-black select-none overflow-hidden font-sans"
+    >
       <AnimatePresence mode="wait">
         
         {/* Phase 1: BIOS */}
@@ -189,6 +193,6 @@ export const BootScreen: React.FC<BootScreenProps> = ({ onComplete }) => {
         )}
 
       </AnimatePresence>
-    </div>
+    </motion.div>
   );
 };

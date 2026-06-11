@@ -10,6 +10,7 @@ import { WindowManager } from "@/components/os/WindowManager";
 import { StartMenu } from "@/components/os/StartMenu";
 import { BootScreen } from "@/components/os/BootScreen";
 import { AnimatePresence } from "framer-motion";
+import { cn } from "@/lib/utils";
 
 export default function Home() {
   const [isStartOpen, setIsStartOpen] = useState(false);
@@ -20,35 +21,40 @@ export default function Home() {
       <ThemeProvider>
         <WindowProvider>
           <div className="relative flex flex-col w-screen h-screen overflow-hidden bg-black select-none">
-            {/* Boot Screen */}
-            {!isBooted && <BootScreen onComplete={() => setIsBooted(true)} />}
+            {/* Desktop UI (Always rendered, hidden from view/interaction during booting to allow animations to run in background) */}
+            <div className={cn(
+              "relative flex-1 flex flex-col w-full h-full overflow-hidden transition-opacity duration-700",
+              !isBooted ? "opacity-0 pointer-events-none select-none" : "opacity-100"
+            )}>
+              {/* Main Desktop Area */}
+              <main 
+                className="relative flex-1 w-full overflow-hidden"
+                onClick={() => { if (isStartOpen) setIsStartOpen(false); }}
+              >
+                <Desktop />
+                <WindowManager />
+              </main>
 
-            {/* Desktop UI */}
-            {isBooted && (
-              <>
-                {/* Main Desktop Area */}
-                <main 
-                  className="relative flex-1 w-full overflow-hidden"
-                  onClick={() => { if (isStartOpen) setIsStartOpen(false); }}
-                >
-                  <Desktop />
-                  <WindowManager />
-                </main>
+              {/* Taskbar */}
+              <Taskbar onStartClick={() => setIsStartOpen(!isStartOpen)} />
+            </div>
 
-                {/* Taskbar */}
-                <Taskbar onStartClick={() => setIsStartOpen(!isStartOpen)} />
+            {/* Start Menu Overlay */}
+            <AnimatePresence>
+              {isStartOpen && (
+                <StartMenu 
+                  isOpen={isStartOpen} 
+                  onClose={() => setIsStartOpen(false)} 
+                />
+              )}
+            </AnimatePresence>
 
-                {/* Start Menu Overlay */}
-                <AnimatePresence>
-                  {isStartOpen && (
-                    <StartMenu 
-                      isOpen={isStartOpen} 
-                      onClose={() => setIsStartOpen(false)} 
-                    />
-                  )}
-                </AnimatePresence>
-              </>
-            )}
+            {/* Boot Screen Overlay */}
+            <AnimatePresence>
+              {!isBooted && (
+                <BootScreen onComplete={() => setIsBooted(true)} />
+              )}
+            </AnimatePresence>
           </div>
         </WindowProvider>
       </ThemeProvider>

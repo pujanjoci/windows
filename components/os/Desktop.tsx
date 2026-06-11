@@ -267,10 +267,16 @@ const DesktopIcon: React.FC<{
 }> = ({ item, index, onDoubleClick, onContextMenu }) => {
   const { dispatch } = useFileSystem();
   const isMobile = useIsMobile();
-  const [winSize, setWinSize] = useState({ width: typeof window !== "undefined" ? window.innerWidth : 1024 });
+  const [winSize, setWinSize] = useState({ 
+    width: typeof window !== "undefined" ? window.innerWidth : 1024,
+    height: typeof window !== "undefined" ? window.innerHeight : 768
+  });
 
   useEffect(() => {
-    const handleResize = () => setWinSize({ width: window.innerWidth });
+    const handleResize = () => setWinSize({ 
+      width: window.innerWidth, 
+      height: window.innerHeight 
+    });
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
@@ -306,7 +312,7 @@ const DesktopIcon: React.FC<{
   const PADDING = 15;
 
   // Align in vertical columns, starting from top-right and moving left
-  const rows = Math.max(1, Math.floor((window.innerHeight - 80) / (ICON_HEIGHT + GAP)));
+  const rows = Math.max(1, Math.floor((winSize.height - 80) / (ICON_HEIGHT + GAP)));
   const col = Math.floor(index / rows);
   const row = index % rows;
 

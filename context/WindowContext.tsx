@@ -12,7 +12,8 @@ export type WindowType =
   | "contact" 
   | "notepad" 
   | "calculator" 
-  | "image-viewer";
+  | "image-viewer"
+  | "typing-game";
 
 export type WindowInstance = {
   id: string;
@@ -56,6 +57,7 @@ const DEFAULT_SIZES: Record<WindowType, { w: number; h: number }> = {
   notepad: { w: 650, h: 450 },
   calculator: { w: 320, h: 460 },
   "image-viewer": { w: 800, h: 550 },
+  "typing-game": { w: 580, h: 440 },
 };
 
 export const WindowProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {

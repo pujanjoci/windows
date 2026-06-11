@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useFileSystem, FileSystemItem } from "@/context/FileSystemContext";
 import { useWindows } from "@/context/WindowContext";
 import { useTheme, ThemeName } from "@/context/ThemeContext";
-import { Folder, FileText, FolderPlus, FilePlus, RefreshCcw, Palette, Trash2, Pencil, Terminal, Globe, Mail, Monitor, Image as ImageIcon } from "lucide-react";
+import { Folder, FileText, FolderPlus, FilePlus, RefreshCcw, Palette, Trash2, Pencil, Terminal, Globe, Mail, Monitor, Image as ImageIcon, Keyboard } from "lucide-react";
 import { ContextMenu, ContextMenuItem } from "@/components/ui/ContextMenu";
 import { motion } from "framer-motion";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -28,7 +28,8 @@ export const Desktop: React.FC = () => {
     "Photos",
     "Resume.pdf",
     "Contact.txt",
-    "Browser"
+    "Browser",
+    "Typing Game"
   ];
 
   const desktopItems = getChildren("desktop").sort((a, b) => {
@@ -98,6 +99,8 @@ export const Desktop: React.FC = () => {
         openWindow("browser", "The Internet", { x: currentX, y: currentY });
       } else if (item.content === "app:contact") {
         openWindow("contact", "Contact Me", { x: currentX, y: currentY });
+      } else if (item.content === "app:typing-game") {
+        openWindow("typing-game", "Typing Master", { x: currentX, y: currentY });
       }
     } else if (isImageFile(item.name)) {
       openWindow("image-viewer", item.name, openProps);
@@ -296,6 +299,9 @@ const DesktopIcon: React.FC<{
     }
     if (item.name === "Contact.lnk" || item.content === "app:contact") {
       return <Mail className="w-11 h-11 text-emerald-500" />;
+    }
+    if (item.name === "Typing Game" || item.content === "app:typing-game") {
+      return <Keyboard className="w-11 h-11 text-cyan-500" />;
     }
     if (isImageFile(item.name)) {
       return <ImageIcon className="w-11 h-11 text-indigo-500" />;

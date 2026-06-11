@@ -29,7 +29,7 @@ type FileSystemAction =
   | { type: "RESET_ALL_POSITIONS"; payload: { parentId: string } };
 
 // Bump this to force a reset of stale local storage caches
-const CURRENT_VERSION = 14;
+const CURRENT_VERSION = 15;
 
 const ABOUT_ME_TXT = `Hi! I'm Pujan Joshi, a passionate React and TypeScript Frontend Engineer.
 I specialize in building rich, interactive, and high-performance web applications with stunning user interfaces and smooth user experiences.
@@ -151,6 +151,7 @@ const initialState: FileSystemState = {
     doc_notes: { id: "doc_notes", name: "Ideas.txt", type: "file", parentId: "documents", content: "Write down portfolio project ideas here.", createdAt: Date.now() },
 
     internet_lnk: { id: "internet_lnk", name: "Browser", type: "file", parentId: "desktop", content: "app:browser", createdAt: Date.now() },
+    typing_game_lnk: { id: "typing_game_lnk", name: "Typing Game", type: "file", parentId: "desktop", content: "app:typing-game", createdAt: Date.now() },
   },
   rootId: "root",
 };

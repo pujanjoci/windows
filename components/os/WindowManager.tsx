@@ -13,7 +13,8 @@ import {
   GitBranch, 
   Mail,
   Loader2,
-  Calculator as CalcIcon
+  Calculator as CalcIcon,
+  Keyboard
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -27,6 +28,7 @@ const ContactWindow = React.lazy(() => import("@/components/apps/ContactWindow")
 const Notepad = React.lazy(() => import("@/components/apps/Notepad").then(m => ({ default: m.Notepad })));
 const Calculator = React.lazy(() => import("@/components/apps/Calculator").then(m => ({ default: m.Calculator })));
 const ImageViewer = React.lazy(() => import("@/components/apps/ImageViewer").then(m => ({ default: m.ImageViewer })));
+const TypingGame = React.lazy(() => import("@/components/apps/TypingGame").then(m => ({ default: m.TypingGame })));
 
 export const WindowManager: React.FC = () => {
   const { windows, activeWindowId, openWindow, closeWindow, focusWindow, restoreWindow } = useWindows();
@@ -174,6 +176,8 @@ function getWindowIcon(type: string, title: string) {
       return <CalcIcon className="w-4 h-4 text-orange-600 dark:text-orange-400" />;
     case "image-viewer":
       return <ImageIcon className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />;
+    case "typing-game":
+      return <Keyboard className="w-4 h-4 text-cyan-600 dark:text-cyan-400" />;
     default:
       return <Monitor className="w-4 h-4 text-zinc-600 dark:text-zinc-400" />;
   }
@@ -205,6 +209,8 @@ function renderWindowContent(window: WindowInstance, onClose: () => void) {
       return <Calculator />;
     case "image-viewer":
       return <ImageViewer fileId={window.props?.fileId} onClose={onClose} />;
+    case "typing-game":
+      return <TypingGame />;
     default:
       return (
         <div className="p-8 text-white/50 text-center flex flex-col items-center justify-center h-full">

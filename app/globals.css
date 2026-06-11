@@ -54,7 +54,7 @@ body {
     background-color: currentColor;
     animation: blink 1s step-end infinite;
     vertical-align: middle;
-    margin-left: 4px;
+    margin-left: 2px;
   }
 
   @keyframes blink {

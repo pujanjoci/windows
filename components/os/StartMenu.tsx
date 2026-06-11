@@ -14,7 +14,8 @@ import {
   Mail,
   FileText,
   Calculator as CalcIcon,
-  Image as ImageIcon
+  Image as ImageIcon,
+  Keyboard
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -148,6 +149,11 @@ export const StartMenu: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ 
                   icon={<Terminal className="text-emerald-500" />}
                   label="Terminal"
                   onClick={() => { openWindow("terminal", "Command Prompt"); onClose(); }}
+                />
+                <PinnedAppItem
+                  icon={<Keyboard className="text-cyan-500" />}
+                  label="Typing Game"
+                  onClick={() => { openWindow("typing-game", "Typing Master"); onClose(); }}
                 />
               </div>
             </div>

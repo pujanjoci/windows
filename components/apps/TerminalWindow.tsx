@@ -167,18 +167,23 @@ Available commands:
         ))}
         
         {/* Current Prompt */}
-        <div className="flex items-start">
+        <div className="flex items-start relative w-full">
           <span className="shrink-0 text-white mr-1">{prompt}</span>
-          <input
-            ref={inputRef}
-            autoFocus
-            type="text"
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-            onKeyDown={handleKeyDown}
-            className="flex-1 bg-transparent border-none outline-none text-[#cccccc] caret-transparent"
-          />
-          <div className="terminal-cursor" />
+          <div className="relative flex-1 min-w-0">
+            <span className="text-[#cccccc] whitespace-pre-wrap break-all">
+              {inputValue}
+              <span className="terminal-cursor" />
+            </span>
+            <input
+              ref={inputRef}
+              autoFocus
+              type="text"
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              onKeyDown={handleKeyDown}
+              className="absolute inset-0 w-full h-full bg-transparent border-none outline-none text-transparent caret-transparent select-none opacity-0 z-10"
+            />
+          </div>
         </div>
       </div>
     </div>

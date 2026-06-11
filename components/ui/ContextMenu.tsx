@@ -55,13 +55,23 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({ x, y, items, onClose }
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [onClose]);
 
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        onClose();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [onClose]);
+
   if (!mounted) return null;
 
   return createPortal(
     <div
       ref={menuRef}
       className={cn(
-        "fixed z-[9999] min-w-[160px] py-1 rounded-lg glass-dark border border-white/10 shadow-2xl animate-in fade-in zoom-in-95 duration-100"
+        "fixed z-[99999] min-w-[160px] py-1 rounded-lg glass-dark border border-white/10 shadow-2xl animate-in fade-in zoom-in-95 duration-100"
       )}
       style={{ left: position.x, top: position.y }}
     >

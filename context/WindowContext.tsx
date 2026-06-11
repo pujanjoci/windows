@@ -13,7 +13,10 @@ export type WindowType =
   | "notepad" 
   | "calculator" 
   | "image-viewer"
-  | "typing-game";
+  | "typing-game"
+  | "music-player"
+  | "video-player"
+  | "settings";
 
 export type WindowInstance = {
   id: string;
@@ -28,6 +31,7 @@ export type WindowInstance = {
   height: number;
   snapped: "left" | "right" | null;
   props?: any;
+  focusTrigger?: number;
 };
 
 type WindowContextType = {
@@ -42,6 +46,7 @@ type WindowContextType = {
   updateWindowPosition: (id: string, x: number, y: number) => void;
   updateWindowSize: (id: string, width: number, height: number) => void;
   snapWindow: (id: string, side: "left" | "right" | null) => void;
+  triggerWindowAttention: (id: string) => void;
 };
 
 const WindowContext = createContext<WindowContextType | null>(null);
@@ -58,6 +63,9 @@ const DEFAULT_SIZES: Record<WindowType, { w: number; h: number }> = {
   calculator: { w: 320, h: 460 },
   "image-viewer": { w: 800, h: 550 },
   "typing-game": { w: 580, h: 440 },
+  "music-player": { w: 420, h: 540 },
+  "video-player": { w: 720, h: 480 },
+  settings: { w: 680, h: 480 },
 };
 
 export const WindowProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -116,6 +124,7 @@ export const WindowProvider: React.FC<{ children: React.ReactNode }> = ({ childr
               ...w, 
               zIndex: newZ, 
               isMinimized: false,
+              focusTrigger: (w.focusTrigger || 0) + 1,
               props: { ...w.props, x: props?.x, y: props?.y }
             } 
           : w));
@@ -123,7 +132,23 @@ export const WindowProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         setMaxZIndex(newZ);
         return existing.id;
       }
-    } else if (type === "projects" || type === "contact" || type === "calculator" || type === "terminal") {
+    } else if (type === "notepad" && props?.fileId) {
+      const existing = windows.find(w => w.type === "notepad" && w.props?.fileId === props.fileId);
+      if (existing) {
+        setWindows(prev => prev.map(w => w.id === existing.id 
+          ? { 
+              ...w, 
+              zIndex: newZ, 
+              isMinimized: false,
+              focusTrigger: (w.focusTrigger || 0) + 1,
+              props: { ...w.props, x: props?.x, y: props?.y }
+            } 
+          : w));
+        setActiveWindowId(existing.id);
+        setMaxZIndex(newZ);
+        return existing.id;
+      }
+    } else if (type === "music-player") {
       const existing = windows.find(w => w.type === type);
       if (existing) {
         setWindows(prev => prev.map(w => w.id === existing.id 
@@ -131,6 +156,48 @@ export const WindowProvider: React.FC<{ children: React.ReactNode }> = ({ childr
               ...w, 
               zIndex: newZ, 
               isMinimized: false,
+              focusTrigger: (w.focusTrigger || 0) + 1,
+              props: { ...w.props, fileId: props?.fileId }
+            } 
+          : w));
+        setActiveWindowId(existing.id);
+        setMaxZIndex(newZ);
+        return existing.id;
+      }
+    } else if (type === "image-viewer") {
+      const existing = windows.find(w => w.type === type);
+      if (existing) {
+        setWindows(prev => prev.map(w => w.id === existing.id 
+          ? { 
+              ...w, 
+              title,
+              zIndex: newZ, 
+              isMinimized: false,
+              focusTrigger: (w.focusTrigger || 0) + 1,
+              props: { ...w.props, fileId: props?.fileId }
+            } 
+          : w));
+        setActiveWindowId(existing.id);
+        setMaxZIndex(newZ);
+        return existing.id;
+      }
+    } else if (
+      type === "projects" || 
+      type === "contact" || 
+      type === "calculator" || 
+      type === "terminal" || 
+      type === "typing-game" || 
+      type === "settings" ||
+      type === "browser"
+    ) {
+      const existing = windows.find(w => w.type === type);
+      if (existing) {
+        setWindows(prev => prev.map(w => w.id === existing.id 
+          ? { 
+              ...w, 
+              zIndex: newZ, 
+              isMinimized: false,
+              focusTrigger: (w.focusTrigger || 0) + 1,
               props: { ...w.props, x: props?.x, y: props?.y }
             } 
           : w));
@@ -226,6 +293,12 @@ export const WindowProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     setWindows(prev => prev.map(w => w.id === id ? { ...w, snapped: side, isMaximized: false } : w));
   }, []);
 
+  const triggerWindowAttention = useCallback((id: string) => {
+    setWindows(prev => prev.map(w => w.id === id 
+      ? { ...w, focusTrigger: (w.focusTrigger || 0) + 1 } 
+      : w));
+  }, []);
+
   return (
     <WindowContext.Provider value={{ 
       windows, 
@@ -238,7 +311,8 @@ export const WindowProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       restoreWindow,
       updateWindowPosition,
       updateWindowSize,
-      snapWindow
+      snapWindow,
+      triggerWindowAttention
     }}>
       {children}
     </WindowContext.Provider>

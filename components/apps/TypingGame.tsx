@@ -1,34 +1,44 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
-import { Keyboard, Trophy, Timer, RefreshCw, Award, Code, Quote, Sparkles, CheckCircle2 } from "lucide-react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
+import { Keyboard, Trophy, Timer, RefreshCw, Award, Sparkles, CheckCircle2, Shield, Lock, AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useWindows } from "@/context/WindowContext";
 
 const PARAGRAPHS = {
-  javascript: [
+  easy: [
+    "the simple typing game lets you practice your speed and accuracy on the web",
+    "many software developers write clean code every day to build beautiful projects",
+    "practicing typing is a great way to improve your programming skills over time",
+    "learning to code is a fun journey that opens up many opportunities for your future",
+    "the quick brown fox jumps over the lazy dog in a warm sunny day",
+    "focus on keyboard shortcuts and key placement to gain speed and precision",
+    "typing simple english words builds muscle memory for computer developers"
+  ],
+  medium: [
+    "Artificial intelligence and neural networks are transforming software development, automating redundant tasks and generating production-ready code blocks.",
+    "Responsive web design utilizes CSS media queries and flexible grid layouts to ensure interfaces render elegantly on high-resolution screens and smartphones.",
+    "The only way to do great work is to love what you do. If you haven't found it yet, keep looking. Don't settle.",
+    "Simplicity is the soul of efficiency. Simple code is readable, maintainable, and less prone to regression errors.",
+    "Great software engineering is not about typing fast, but about planning carefully and designing robust solutions.",
+    "Cloud platforms host containers dynamically, scaling CPU and memory allocations based on real-time traffic spikes.",
+    "Web browsers construct a CSS Object Model tree alongside the DOM before rendering the visual viewport details."
+  ],
+  hard: [
     "const calculateWpm = (chars, time) => { const words = chars / 5; return Math.round(words / (time / 60)); };",
     "async function fetchProfile(username) { const res = await fetch(`/api/user/${username}`); return res.json(); }",
     "import React, { useState, useEffect } from 'react'; export const App = () => { return <div>Hello World</div>; };",
-    "const sorted = items.sort((a, b) => a.priority - b.priority).filter(item => !item.completed);"
-  ],
-  tech: [
-    "Artificial intelligence and neural networks are transforming software development, automating redundant tasks and generating production-ready code blocks.",
-    "Responsive web design utilizes CSS media queries and flexible grid layouts to ensure interfaces render elegantly on high-resolution screens and smartphones.",
-    "Git version control allows engineers to branch, commit, and merge codebase changes asynchronously, accelerating continuous integration pipelines.",
-    "Web browsers parse HTML markup into a Document Object Model tree before rendering styled styles, transitions, and interactive scripts."
-  ],
-  quotes: [
-    "The only way to do great work is to love what you do. If you haven't found it yet, keep looking. Don't settle.",
-    "Success is not final, failure is not fatal: it is the courage to continue that counts.",
-    "Code is like humor. When you have to explain it, it's bad.",
-    "Simplicity is the soul of efficiency. Simple code is readable, maintainable, and less prone to regression errors."
+    "git add . && git commit -m \"Refine OS: dark mode, layout optimizations\" && git push origin main",
+    "const filtered = items.sort((a, b) => b.score - a.score).map(x => ({ id: x.id, name: x.name }));",
+    "const response = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });",
+    "export type WindowType = 'folder' | 'terminal' | 'browser' | 'notepad' | 'calculator' | 'typing-game';"
   ]
 };
 
-type Category = keyof typeof PARAGRAPHS;
+type Difficulty = "easy" | "medium" | "hard";
 
 export const TypingGame: React.FC = () => {
-  const [category, setCategory] = useState<Category>("tech");
+  const [difficulty, setDifficulty] = useState<Difficulty>("easy");
   const [duration, setDuration] = useState<number>(30); // in seconds
   const [targetText, setTargetText] = useState("");
   const [inputVal, setInputVal] = useState("");
@@ -37,34 +47,39 @@ export const TypingGame: React.FC = () => {
   const [wpm, setWpm] = useState(0);
   const [accuracy, setAccuracy] = useState(100);
   const [errors, setErrors] = useState(0);
+  const [flashRed, setFlashRed] = useState(false);
   
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Set new target text
-  const loadText = (cat: Category) => {
-    const list = PARAGRAPHS[cat];
-    const rand = list[Math.floor(Math.random() * list.length)];
-    setTargetText(rand);
+  // Set target text dynamically scaled to difficulty and duration
+  const loadText = useCallback((diff: Difficulty, dur: number) => {
+    const list = PARAGRAPHS[diff];
+    // Scale text length: 15s = 1 sentence, 30s = 2 sentences, 60s = 3 sentences
+    const count = dur === 15 ? 1 : dur === 30 ? 2 : 3;
+    
+    const selected: string[] = [];
+    const temp = [...list];
+    for (let i = 0; i < count; i++) {
+      if (temp.length === 0) break;
+      const randIdx = Math.floor(Math.random() * temp.length);
+      selected.push(temp[randIdx]);
+      temp.splice(randIdx, 1);
+    }
+    
+    setTargetText(selected.join(" "));
     setInputVal("");
     setWpm(0);
     setAccuracy(100);
     setErrors(0);
     setGameState("idle");
-  };
+  }, []);
 
   useEffect(() => {
-    loadText(category);
-  }, [category]);
-
-  useEffect(() => {
+    loadText(difficulty, duration);
     setTimeLeft(duration);
     setGameState("idle");
-    setInputVal("");
-    setWpm(0);
-    setAccuracy(100);
-    setErrors(0);
-  }, [duration]);
+  }, [difficulty, duration, loadText]);
 
   // Clean up timer
   useEffect(() => {
@@ -98,18 +113,34 @@ export const TypingGame: React.FC = () => {
     }
     if (gameState === "finished") return;
 
-    // Limit input length to target text
+    // MEDIUM MODE: "Mistake Lock"
+    if (difficulty === "medium") {
+      const firstErrorIdx = value.split("").findIndex((char, idx) => char !== targetText[idx]);
+      if (firstErrorIdx !== -1 && value.length > firstErrorIdx + 1) {
+        return;
+      }
+    }
+
+    // HARD MODE: "Time Penalty"
+    if (difficulty === "hard" && value.length > inputVal.length) {
+      const typedChar = value[value.length - 1];
+      const targetChar = targetText[value.length - 1];
+      if (typedChar !== targetChar) {
+        setTimeLeft((prev) => Math.max(0, Math.round(prev - 2))); // deduct 2 seconds per error
+        setFlashRed(true);
+        setTimeout(() => setFlashRed(false), 150);
+      }
+    }
+
     if (value.length <= targetText.length) {
       setInputVal(value);
       
-      // Calculate errors
       let errCount = 0;
       for (let i = 0; i < value.length; i++) {
         if (value[i] !== targetText[i]) errCount++;
       }
       setErrors(errCount);
 
-      // Accuracy
       if (value.length > 0) {
         const correctCount = value.length - errCount;
         setAccuracy(Math.round((correctCount / value.length) * 100));
@@ -117,8 +148,8 @@ export const TypingGame: React.FC = () => {
         setAccuracy(100);
       }
 
-      // Finish automatically if completed text
-      if (value.length === targetText.length) {
+      // Finish automatically if completed text correctly
+      if (value.length === targetText.length && errCount === 0) {
         if (timerRef.current) clearInterval(timerRef.current);
         setGameState("finished");
       }
@@ -135,17 +166,75 @@ export const TypingGame: React.FC = () => {
         setWpm(netWpm);
       }
     } else if (gameState === "finished") {
-      const elapsed = duration - timeLeft || 1; // prevent divide by zero
+      const elapsed = duration - timeLeft || 1;
       const words = (inputVal.length - errors) / 5;
       const finalWpm = Math.max(0, Math.round(words / (elapsed / 60)));
       setWpm(finalWpm);
     }
   }, [inputVal, timeLeft, gameState, errors, duration]);
 
-  const resetGame = () => {
+  // Stop game if time hits 0
+  useEffect(() => {
+    if (timeLeft === 0 && gameState === "playing") {
+      if (timerRef.current) clearInterval(timerRef.current);
+      setGameState("finished");
+    }
+  }, [timeLeft, gameState]);
+
+  const resetGame = useCallback(() => {
     if (timerRef.current) clearInterval(timerRef.current);
     setTimeLeft(duration);
-    loadText(category);
+    loadText(difficulty, duration);
+  }, [difficulty, duration, loadText]);
+
+  const { windows, activeWindowId } = useWindows();
+  const gameWindow = windows.find(w => w.type === "typing-game");
+  const isWindowActive = gameWindow && gameWindow.id === activeWindowId;
+
+  // Auto-focus input on active window state
+  useEffect(() => {
+    if (isWindowActive && gameState === "idle") {
+      inputRef.current?.focus();
+    }
+  }, [isWindowActive, gameState]);
+
+  // Handle in-game keyboard shortcuts (Esc, Ctrl+Enter, Enter/Space on Finished)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (!isWindowActive) return;
+
+      // Esc key to reset
+      if (e.key === "Escape") {
+        e.preventDefault();
+        resetGame();
+        setTimeout(() => inputRef.current?.focus(), 50);
+      }
+
+      // Ctrl + Enter to reset
+      if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
+        e.preventDefault();
+        resetGame();
+        setTimeout(() => inputRef.current?.focus(), 50);
+      }
+
+      // If game is finished, Enter or Space restarts
+      if (gameState === "finished") {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          resetGame();
+          setTimeout(() => inputRef.current?.focus(), 50);
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isWindowActive, gameState, resetGame]);
+
+  const formatTime = (time: number) => {
+    const mins = Math.floor(time / 60);
+    const secs = time % 60;
+    return `${mins < 10 ? "0" : ""}${mins}:${secs < 10 ? "0" : ""}${secs}`;
   };
 
   const getWpmFeedback = (w: number) => {
@@ -157,10 +246,26 @@ export const TypingGame: React.FC = () => {
 
   const feedback = getWpmFeedback(wpm);
 
+  const getDifficultyModifierDesc = () => {
+    switch (difficulty) {
+      case "easy":
+        return { icon: <Shield className="w-3.5 h-3.5 text-emerald-500" />, text: "Standard Mode: Simple words, no speed penalties." };
+      case "medium":
+        return { icon: <Lock className="w-3.5 h-3.5 text-amber-500" />, text: "Mistake Lock: Blocked from typing ahead until errors are corrected." };
+      case "hard":
+        return { icon: <AlertTriangle className="w-3.5 h-3.5 text-red-500 animate-pulse" />, text: "Sudden Penalty: Wrong keystrokes deduct 2.0 seconds!" };
+    }
+  };
+
+  const modifier = getDifficultyModifierDesc();
+
   return (
-    <div className="flex flex-col h-full bg-gradient-to-b from-[#f9fafb] to-[#f3f4f6] dark:from-[#1a1b26] dark:to-[#12131a] text-zinc-800 dark:text-zinc-200 select-none font-sans p-4 justify-between">
+    <div className={cn(
+      "flex flex-col h-full bg-gradient-to-b from-[#f9fafb] to-[#f3f4f6] dark:from-[#1a1b26] dark:to-[#12131a] text-zinc-800 dark:text-zinc-200 select-none font-sans p-4 justify-between transition-colors duration-150",
+      flashRed && "bg-red-500/10 dark:bg-red-950/20 border-red-500/30"
+    )}>
       {/* HEADER SECTION */}
-      <div className="flex items-center justify-between border-b border-black/5 dark:border-white/5 pb-3">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-black/5 dark:border-white/5 pb-3 gap-2">
         <div className="flex items-center gap-2">
           <div className="p-1.5 rounded-lg bg-blue-500/10 text-blue-600 dark:text-cyan-400">
             <Keyboard className="w-5 h-5" />
@@ -171,23 +276,27 @@ export const TypingGame: React.FC = () => {
           </div>
         </div>
 
-        {/* Options */}
+        {/* Level & Time Selectors */}
         {gameState === "idle" && (
-          <div className="flex items-center gap-3">
-            {/* Category Select */}
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+            {/* Difficulty Select */}
             <div className="flex rounded-lg bg-zinc-200/50 dark:bg-zinc-800/50 p-0.5 border border-black/5 dark:border-white/5">
-              {(["tech", "quotes", "javascript"] as Category[]).map((cat) => (
+              {(["easy", "medium", "hard"] as Difficulty[]).map((diff) => (
                 <button
-                  key={cat}
-                  onClick={() => setCategory(cat)}
+                  key={diff}
+                  onClick={() => setDifficulty(diff)}
                   className={cn(
                     "px-2.5 py-1 text-[10px] font-bold rounded-md transition-all uppercase cursor-default",
-                    category === cat
-                      ? "bg-white dark:bg-zinc-700 text-blue-600 dark:text-cyan-400 shadow-sm"
+                    difficulty === diff
+                      ? diff === "easy" 
+                        ? "bg-emerald-500 text-white shadow-sm"
+                        : diff === "medium"
+                          ? "bg-amber-500 text-white shadow-sm"
+                          : "bg-red-500 text-white shadow-sm"
                       : "opacity-60 hover:opacity-100"
                   )}
                 >
-                  {cat === "javascript" ? "JS Code" : cat}
+                  {diff}
                 </button>
               ))}
             </div>
@@ -214,12 +323,11 @@ export const TypingGame: React.FC = () => {
       </div>
 
       {/* STATS PANEL */}
-      <div className="grid grid-cols-4 gap-3 my-3">
+      <div className="grid grid-cols-4 gap-2.5 my-2.5">
         <StatCard 
           icon={<Timer className="w-4 h-4 text-orange-500" />} 
           label="Time Left" 
-          value={`${timeLeft}s`} 
-          progress={(timeLeft / duration) * 100}
+          value={formatTime(timeLeft)} 
         />
         <StatCard 
           icon={<Trophy className="w-4 h-4 text-yellow-500" />} 
@@ -239,16 +347,43 @@ export const TypingGame: React.FC = () => {
         />
       </div>
 
+      {/* MODIFIER NOTICE */}
+      <div className="flex items-center justify-between px-3 py-1.5 rounded-xl bg-zinc-100 dark:bg-zinc-800/40 border border-black/5 dark:border-white/5 text-[10px] font-medium opacity-80 mb-3">
+        <div className="flex items-center gap-2">
+          {modifier.icon}
+          <span>{modifier.text}</span>
+        </div>
+        {gameState === "playing" && (
+          <span className="font-bold opacity-60 tracking-wider">
+            {Math.round((inputVal.length / targetText.length) * 100)}% DONE
+          </span>
+        )}
+      </div>
+
       {/* PLAY AREA */}
       <div 
         onClick={() => inputRef.current?.focus()} 
         className={cn(
-          "flex-1 flex flex-col justify-center border rounded-2xl p-5 relative cursor-text min-h-[140px] transition-all bg-white/70 dark:bg-black/30 backdrop-blur-sm shadow-[inset_0_2px_4px_rgba(0,0,0,0.03)] dark:shadow-[inset_0_2px_8px_rgba(0,0,0,0.4)]",
+          "flex-1 flex flex-col justify-center border rounded-2xl p-5 relative overflow-hidden cursor-text min-h-[140px] transition-all bg-white/70 dark:bg-black/35 backdrop-blur-sm shadow-[inset_0_2px_4px_rgba(0,0,0,0.03)] dark:shadow-[inset_0_2px_8px_rgba(0,0,0,0.4)]",
           gameState === "playing" 
             ? "border-blue-500/30 dark:border-cyan-500/30" 
-            : "border-black/5 dark:border-white/5"
+            : "border-black/5 dark:border-white/5",
+          flashRed && "border-red-500/40 shadow-red-500/5"
         )}
       >
+        {/* Clean Line Timer bar */}
+        {gameState === "playing" && (
+          <div className="absolute top-0 left-0 right-0 h-1 bg-zinc-200 dark:bg-zinc-800/70 overflow-hidden">
+            <div 
+              className={cn(
+                "h-full transition-all duration-1000 ease-linear",
+                difficulty === "easy" ? "bg-emerald-500" : difficulty === "medium" ? "bg-amber-500" : "bg-red-500"
+              )}
+              style={{ width: `${(timeLeft / duration) * 100}%` }}
+            />
+          </div>
+        )}
+
         {gameState !== "finished" ? (
           <div className="relative font-mono leading-relaxed text-sm select-none break-words">
             {targetText.split("").map((char, index) => {
@@ -288,17 +423,40 @@ export const TypingGame: React.FC = () => {
               <CheckCircle2 className="w-6 h-6" />
             </div>
             <div>
-              <h3 className="text-sm font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wide">
+              <h3 className="text-xs font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wide">
                 Final Result
               </h3>
+              
+              {/* Speed & Accuracy Display */}
               <div className="flex items-baseline justify-center gap-1 mt-1">
                 <span className="text-3xl font-extrabold text-blue-600 dark:text-cyan-400 tracking-tight">
                   {wpm}
                 </span>
                 <span className="text-xs font-semibold opacity-70">WPM</span>
               </div>
-              <p className="text-xs font-semibold mt-2 text-zinc-700 dark:text-zinc-300">
-                Rank: <span className="text-purple-600 dark:text-purple-400">{feedback.rank}</span> ({accuracy}% Acc)
+
+              {/* Game Mode Badges */}
+              <div className="flex items-center justify-center gap-2 mt-2">
+                <span className={cn(
+                  "px-2.5 py-0.5 rounded-full text-[9px] font-bold uppercase border shadow-sm",
+                  difficulty === "easy" 
+                    ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20" 
+                    : difficulty === "medium" 
+                      ? "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20" 
+                      : "bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20"
+                )}>
+                  {difficulty} Mode
+                </span>
+                <span className="px-2.5 py-0.5 rounded-full text-[9px] font-bold uppercase border border-zinc-200 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 shadow-sm">
+                  {duration}s Duration
+                </span>
+                <span className="px-2.5 py-0.5 rounded-full text-[9px] font-bold uppercase border border-zinc-200 dark:border-zinc-800 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 shadow-sm">
+                  {accuracy}% Accuracy
+                </span>
+              </div>
+
+              <p className="text-xs font-semibold mt-3 text-zinc-700 dark:text-zinc-300">
+                Rank: <span className="text-purple-600 dark:text-purple-400 font-bold">{feedback.rank}</span>
               </p>
               <p className="text-[10px] opacity-60 max-w-xs mx-auto mt-1 leading-normal">
                 {feedback.desc}
@@ -325,10 +483,11 @@ export const TypingGame: React.FC = () => {
         >
           <RefreshCw className="w-3.5 h-3.5" />
           <span>Reset Test</span>
+          <kbd className="ml-1 px-1.5 py-0.5 text-[9px] bg-zinc-200/60 dark:bg-zinc-800/60 text-zinc-500 dark:text-zinc-400 font-mono rounded border border-black/10 dark:border-white/10 font-normal">Esc</kbd>
         </button>
 
         <span className="text-[10px] opacity-40 font-semibold tracking-wide uppercase">
-          Typing Master OS v1.0
+          Typing Master OS v1.2
         </span>
       </div>
     </div>
@@ -339,11 +498,10 @@ interface StatCardProps {
   icon: React.ReactNode;
   label: string;
   value: string;
-  progress?: number;
   alert?: boolean;
 }
 
-const StatCard: React.FC<StatCardProps> = ({ icon, label, value, progress, alert }) => {
+const StatCard: React.FC<StatCardProps> = ({ icon, label, value, alert }) => {
   return (
     <div className={cn(
       "relative flex flex-col p-3 rounded-2xl border bg-white/70 dark:bg-zinc-800/40 border-black/5 dark:border-white/5 shadow-[0_1.5px_2px_rgba(0,0,0,0.03),inset_0_1px_0_rgba(255,255,255,0.8)] dark:shadow-[0_1.5px_2px_rgba(0,0,0,0.18),inset_0_1px_0_rgba(255,255,255,0.05)] overflow-hidden transition-all",
@@ -355,17 +513,9 @@ const StatCard: React.FC<StatCardProps> = ({ icon, label, value, progress, alert
           {label}
         </span>
       </div>
-      <span className="text-base font-extrabold tracking-tight">
+      <span className="text-base font-extrabold tracking-tight font-mono">
         {value}
       </span>
-      {progress !== undefined && (
-        <div className="absolute bottom-0 left-0 right-0 h-1 bg-black/5 dark:bg-white/5">
-          <div 
-            className="h-full bg-blue-500 dark:bg-cyan-400 transition-all duration-1000 ease-linear"
-            style={{ width: `${progress}%` }}
-          />
-        </div>
-      )}
     </div>
   );
 };

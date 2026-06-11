@@ -15,7 +15,10 @@ import {
   FileText,
   Calculator as CalcIcon,
   Image as ImageIcon,
-  Keyboard
+  Keyboard,
+  Settings as SettingsIcon,
+  Music,
+  Video
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -26,6 +29,17 @@ export const StartMenu: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ 
   const { getChildren } = useFileSystem();
   const [searchQuery, setSearchQuery] = useState("");
   const isMobile = useIsMobile();
+
+  // Listen for Escape key to close the Start Menu
+  React.useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        onClose();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [onClose]);
 
   const desktopItems = getChildren("desktop");
   
@@ -85,8 +99,12 @@ export const StartMenu: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ 
                   onClick={() => {
                     if (item.type === "folder") {
                       openWindow("folder", item.name, { path: item.id });
-                    } else if (item.name.endsWith(".jpg") || item.name.endsWith(".png")) {
+                    } else if (item.name.endsWith(".jpg") || item.name.endsWith(".png") || item.name.endsWith(".jpeg")) {
                       openWindow("image-viewer", item.name, { fileId: item.id });
+                    } else if (item.name.endsWith(".mp3") || item.name.endsWith(".wav")) {
+                      openWindow("music-player", item.name, { fileId: item.id });
+                    } else if (item.name.endsWith(".mp4") || item.name.endsWith(".webm")) {
+                      openWindow("video-player", item.name, { fileId: item.id });
                     } else {
                       openWindow("notepad", item.name, { fileId: item.id, content: item.content });
                     }
@@ -96,6 +114,12 @@ export const StartMenu: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ 
                 >
                   {item.type === "folder" ? (
                     <Folder className="w-4 h-4 text-blue-600" />
+                  ) : item.name.endsWith(".mp3") || item.name.endsWith(".wav") ? (
+                    <Music className="w-4 h-4 text-pink-500" />
+                  ) : item.name.endsWith(".mp4") || item.name.endsWith(".webm") ? (
+                    <Video className="w-4 h-4 text-red-500" />
+                  ) : item.name.endsWith(".jpg") || item.name.endsWith(".png") || item.name.endsWith(".jpeg") ? (
+                    <ImageIcon className="w-4 h-4 text-indigo-500" />
                   ) : (
                     <FileText className="w-4 h-4 text-zinc-500" />
                   )}
@@ -154,6 +178,21 @@ export const StartMenu: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ 
                   icon={<Keyboard className="text-cyan-500" />}
                   label="Typing Game"
                   onClick={() => { openWindow("typing-game", "Typing Master"); onClose(); }}
+                />
+                <PinnedAppItem
+                  icon={<Music className="text-pink-500" />}
+                  label="Music Player"
+                  onClick={() => { openWindow("music-player", "Music Player"); onClose(); }}
+                />
+                <PinnedAppItem
+                  icon={<Video className="text-red-500" />}
+                  label="Video Player"
+                  onClick={() => { openWindow("video-player", "Video Player"); onClose(); }}
+                />
+                <PinnedAppItem
+                  icon={<SettingsIcon className="text-zinc-500 dark:text-zinc-400" />}
+                  label="Settings"
+                  onClick={() => { openWindow("settings", "Settings"); onClose(); }}
                 />
               </div>
             </div>

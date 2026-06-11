@@ -20,7 +20,9 @@ import {
   Image as ImageIcon,
   GitBranch,
   ExternalLink,
-  ChevronRightSquare
+  ChevronRightSquare,
+  Music,
+  Video
 } from "lucide-react";
 
 const GithubIcon: React.FC<{ className?: string }> = ({ className }) => (
@@ -124,6 +126,10 @@ export const FolderWindow: React.FC<{ initialPathId?: string }> = ({ initialPath
       openWindow("image-viewer", item.name, { fileId: item.id });
     } else if (item.name.endsWith(".pdf")) {
       openWindow("generic", item.name, { fileId: item.id, content: item.content });
+    } else if (item.name.endsWith(".mp3") || item.name.endsWith(".wav")) {
+      openWindow("music-player", item.name, { fileId: item.id });
+    } else if (item.name.endsWith(".mp4") || item.name.endsWith(".webm")) {
+      openWindow("video-player", item.name, { fileId: item.id });
     } else {
       // Text and Markdowns open in Notepad
       openWindow("notepad", item.name, { fileId: item.id, content: item.content });
@@ -270,6 +276,8 @@ export const FolderWindow: React.FC<{ initialPathId?: string }> = ({ initialPath
           <SidebarLink icon={<Folder className="w-4 h-4 text-yellow-500 fill-yellow-500/10" />} label="Documents" onClick={() => navigateTo("documents")} active={currentPathId === "documents"} />
           <SidebarLink icon={<GitBranch className="w-4 h-4 text-purple-500" />} label="Projects" onClick={() => openWindow("projects", "Projects")} active={false} />
           <SidebarLink icon={<ImageIcon className="w-4 h-4 text-indigo-500" />} label="Photos" onClick={() => navigateTo("photos")} active={currentPathId === "photos"} />
+          <SidebarLink icon={<Music className="w-4 h-4 text-pink-500" />} label="Music" onClick={() => navigateTo("music")} active={currentPathId === "music"} />
+          <SidebarLink icon={<Video className="w-4 h-4 text-red-500" />} label="Videos" onClick={() => navigateTo("videos")} active={currentPathId === "videos"} />
           <SidebarLink icon={<Download className="w-4 h-4 text-emerald-500" />} label="Downloads" onClick={() => navigateTo("downloads")} active={currentPathId === "downloads"} />
         </div>
       )}
@@ -470,6 +478,10 @@ export const FolderWindow: React.FC<{ initialPathId?: string }> = ({ initialPath
                                 )
                               ) : isImageFile(item.name) ? (
                                 <ImageIcon className="w-4 h-4 text-indigo-500 shrink-0" />
+                              ) : item.name.endsWith(".mp3") || item.name.endsWith(".wav") ? (
+                                <Music className="w-4 h-4 text-pink-500 shrink-0" />
+                              ) : item.name.endsWith(".mp4") || item.name.endsWith(".webm") ? (
+                                <Video className="w-4 h-4 text-red-500 shrink-0" />
                               ) : (
                                 <FileText className="w-4 h-4 text-zinc-500 shrink-0" />
                               )}
@@ -567,6 +579,10 @@ const FolderItemGrid: React.FC<{
           <ImageIcon className="w-11 h-11 text-indigo-500 group-hover:scale-105 transition-transform" />
         ) : item.name.endsWith(".pdf") ? (
           <FileText className="w-11 h-11 text-red-500 group-hover:scale-105 transition-transform" />
+        ) : item.name.endsWith(".mp3") || item.name.endsWith(".wav") ? (
+          <Music className="w-11 h-11 text-pink-500 group-hover:scale-105 transition-transform" />
+        ) : item.name.endsWith(".mp4") || item.name.endsWith(".webm") ? (
+          <Video className="w-11 h-11 text-red-500 group-hover:scale-105 transition-transform" />
         ) : (
           <FileText className="w-11 h-11 text-zinc-400 dark:text-zinc-300 group-hover:scale-105 transition-transform" />
         )}

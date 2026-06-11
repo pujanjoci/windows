@@ -29,7 +29,7 @@ type FileSystemAction =
   | { type: "RESET_ALL_POSITIONS"; payload: { parentId: string } };
 
 // Bump this to force a reset of stale local storage caches
-const CURRENT_VERSION = 16;
+const CURRENT_VERSION = 22;
 
 const ABOUT_ME_TXT = `Hi! I'm Pujan Joshi, a passionate React and TypeScript Frontend Engineer.
 I specialize in building rich, interactive, and high-performance web applications with stunning user interfaces and smooth user experiences.
@@ -51,6 +51,28 @@ const CONTACT_TXT = `You can connect with me through the following channels:
 - Website: https://pujan-joshi.com.np
 
 Feel free to visit my live website in the browser in my projects or in the desktop!`;
+
+const SHORTCUTS_TXT = `Simulated OS Keyboard Shortcuts & Immersive Mode:
+
+- Win + E  (or Ctrl+Alt+E)  →  Open File Explorer
+- Win + N  (or Ctrl+Alt+N)  →  Open Notepad
+- Alt + Tab (or Alt + Q)    →  Switch windows
+- Ctrl + Alt + T            →  Open Terminal (Command Prompt)
+- Ctrl + Alt + M            →  Open Music Player
+- Ctrl + Alt + V            →  Open Video Player
+- Ctrl + Alt + K            →  Open Typing Game
+- Ctrl + Alt + D            →  Show Desktop (Minimize/Restore all)
+- Esc                       →  Close active window / modal
+- Ctrl + S                  →  Save file in Notepad
+
+------------------------------------------------------
+🎮 SYSTEM CONFLICTS & IMMERSIVE KEYBOARD LOCK:
+By default, native operating system keys (like Win+E, Win+N, and Alt+Tab) open applications on your physical computer.
+
+To run these shortcuts directly inside this web simulator:
+1. Open the Quick Settings panel (click Wi-Fi / Battery icons in the Taskbar bottom-right).
+2. Toggle "Immersive Mode" (or enter browser Fullscreen mode).
+3. This locks the keyboard inputs to the browser, enabling native-feeling Windows shortcuts!`;
 
 const WINDOWS_OS_CLONE_MD = `# Windows OS Clone Simulation
 A high-fidelity Windows-inspired operating system simulation built inside a web browser.
@@ -134,22 +156,48 @@ const initialState: FileSystemState = {
     ecommerce_app_dir: { id: "ecommerce_app_dir", name: "ecommerce-app", type: "folder", parentId: "projects", createdAt: Date.now() },
     ecommerce_app_readme: { id: "ecommerce_app_readme", name: "README.md", type: "file", parentId: "ecommerce_app_dir", content: ECOMMERCE_APP_MD, createdAt: Date.now() },
 
-    // Photos folder inside desktop
-    photos: { id: "photos", name: "Photos", type: "folder", parentId: "desktop", createdAt: Date.now() },
-    photo_1: { id: "photo_1", name: "profile-1.jpg", type: "file", parentId: "photos", content: "/profile-1.jpg", createdAt: Date.now() },
-    photo_2: { id: "photo_2", name: "profile-2.jpg", type: "file", parentId: "photos", content: "/profile-2.jpg", createdAt: Date.now() },
-    photo_3: { id: "photo_3", name: "profile-3.jpg", type: "file", parentId: "photos", content: "/profile-3.jpg", createdAt: Date.now() },
-    photo_4: { id: "photo_4", name: "profile-4.jpg", type: "file", parentId: "photos", content: "/profile-4.jpg", createdAt: Date.now() },
-    photo_5: { id: "photo_5", name: "profile-5.jpg", type: "file", parentId: "photos", content: "/profile-5.jpg", createdAt: Date.now() },
-    photo_6: { id: "photo_6", name: "profile-6.jpg", type: "file", parentId: "photos", content: "/profile-6.jpg", createdAt: Date.now() },
-    photo_7: { id: "photo_7", name: "profile-7.jpg", type: "file", parentId: "photos", content: "/profile-7.jpg", createdAt: Date.now() },
-    photo_8: { id: "photo_8", name: "profile-8.jpg", type: "file", parentId: "photos", content: "/profile-8.jpg", createdAt: Date.now() },
-    photo_9: { id: "photo_9", name: "profile-9.jpg", type: "file", parentId: "photos", content: "/profile-9.jpg", createdAt: Date.now() },
+    // Photos folder inside User folder
+    photos: { id: "photos", name: "Photos", type: "folder", parentId: "user_folder", createdAt: Date.now() },
+    photo_1: { id: "photo_1", name: "profile-1.jpg", type: "file", parentId: "photos", content: "/images/profile-1.jpg", createdAt: Date.now() },
+    photo_2: { id: "photo_2", name: "profile-2.jpg", type: "file", parentId: "photos", content: "/images/profile-2.jpg", createdAt: Date.now() },
+    photo_3: { id: "photo_3", name: "profile-3.jpg", type: "file", parentId: "photos", content: "/images/profile-3.jpg", createdAt: Date.now() },
+    photo_4: { id: "photo_4", name: "profile-4.jpg", type: "file", parentId: "photos", content: "/images/profile-4.jpg", createdAt: Date.now() },
+    photo_5: { id: "photo_5", name: "profile-5.jpg", type: "file", parentId: "photos", content: "/images/profile-5.jpg", createdAt: Date.now() },
+    photo_6: { id: "photo_6", name: "profile-6.jpg", type: "file", parentId: "photos", content: "/images/profile-6.jpg", createdAt: Date.now() },
+    photo_7: { id: "photo_7", name: "profile-7.jpg", type: "file", parentId: "photos", content: "/images/profile-7.jpg", createdAt: Date.now() },
+    photo_8: { id: "photo_8", name: "profile-8.jpg", type: "file", parentId: "photos", content: "/images/profile-8.jpg", createdAt: Date.now() },
+    photo_9: { id: "photo_9", name: "profile-9.jpg", type: "file", parentId: "photos", content: "/images/profile-9.jpg", createdAt: Date.now() },
+
+    // Music folder inside User folder
+    music: { id: "music", name: "Music", type: "folder", parentId: "user_folder", createdAt: Date.now() },
+    music_1: { id: "music_1", name: "Rani Ban.mp3", type: "file", parentId: "music", content: "/music/Rani Ban.mp3", createdAt: Date.now() },
+
+    // Videos folder inside User folder
+    videos: { id: "videos", name: "Videos", type: "folder", parentId: "user_folder", createdAt: Date.now() },
+    video_1: { id: "video_1", name: "loop-video.mp4", type: "file", parentId: "videos", content: "/videos/loop-video.mp4", createdAt: Date.now() },
 
     // Shortcuts and templates in Documents / Downloads
-    readme_downloads: { id: "readme_downloads", name: "Welcome.txt", type: "file", parentId: "downloads", content: "Welcome to Downloads! You can drag files here.", createdAt: Date.now() },
-    doc_notes: { id: "doc_notes", name: "Ideas.txt", type: "file", parentId: "documents", content: "Write down portfolio project ideas here.", createdAt: Date.now() },
+    readme_downloads: { id: "readme_downloads", name: "Welcome.txt", type: "file", parentId: "downloads", 
+      content: `This is a web based OS, how can there be files on new open. 
+      
+Just upload your files here and it will be saved.`, createdAt: Date.now() },
+    doc_notes: { 
+      id: "doc_notes", 
+      name: "Ideas.txt", 
+      type: "file", 
+      parentId: "documents", 
+      content: `I really don't have the ideas to create projects right now. So here are some Simple Ideas provided by ChatGPT:
 
+- Markdown Previewer – Write Markdown and see live preview.
+- Color Palette Generator – Generate and copy color schemes.
+- URL Shortener Frontend – Use a public API to shorten links.
+- Weather Dashboard – Search cities and display weather.
+- GitHub User Finder – Search GitHub profiles and display stats.
+- Typing Speed Test – Measure WPM and accuracy.`, 
+      createdAt: Date.now() 
+    },
+
+    shortcut_txt: { id: "shortcut_txt", name: "shortcut.txt", type: "file", parentId: "desktop", content: SHORTCUTS_TXT, createdAt: Date.now() },
     internet_lnk: { id: "internet_lnk", name: "Browser", type: "file", parentId: "desktop", content: "app:browser", createdAt: Date.now() },
     typing_game_lnk: { id: "typing_game_lnk", name: "Typing Game", type: "file", parentId: "desktop", content: "app:typing-game", createdAt: Date.now() },
   },

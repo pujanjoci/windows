@@ -14,7 +14,10 @@ import {
   Mail,
   Loader2,
   Calculator as CalcIcon,
-  Keyboard
+  Keyboard,
+  Settings as SettingsIcon,
+  Music,
+  Video
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -29,9 +32,12 @@ const Notepad = React.lazy(() => import("@/components/apps/Notepad").then(m => (
 const Calculator = React.lazy(() => import("@/components/apps/Calculator").then(m => ({ default: m.Calculator })));
 const ImageViewer = React.lazy(() => import("@/components/apps/ImageViewer").then(m => ({ default: m.ImageViewer })));
 const TypingGame = React.lazy(() => import("@/components/apps/TypingGame").then(m => ({ default: m.TypingGame })));
+const Settings = React.lazy(() => import("@/components/apps/Settings").then(m => ({ default: m.Settings })));
+const MusicPlayer = React.lazy(() => import("@/components/apps/MusicPlayer").then(m => ({ default: m.MusicPlayer })));
+const VideoPlayer = React.lazy(() => import("@/components/apps/VideoPlayer").then(m => ({ default: m.VideoPlayer })));
 
 export const WindowManager: React.FC = () => {
-  const { windows, activeWindowId, openWindow, closeWindow, focusWindow, restoreWindow } = useWindows();
+  const { windows, activeWindowId, openWindow, closeWindow, focusWindow, restoreWindow, minimizeWindow } = useWindows();
   const [isAltTabOpen, setIsAltTabOpen] = useState(false);
   const [altTabSelectedIndex, setAltTabSelectedIndex] = useState(0);
   const altPressed = useRef(false);
@@ -41,8 +47,8 @@ export const WindowManager: React.FC = () => {
     const handleKeyDown = (e: KeyboardEvent) => {
       const { key } = e;
 
-      // Alt + Tab Switcher
-      if (e.altKey && key === "Tab") {
+      // Alt + Tab Switcher or Alt + Q (web-safe alternative)
+      if (e.altKey && (key === "Tab" || key.toLowerCase() === "q")) {
         e.preventDefault();
         if (windows.length === 0) return;
 
@@ -69,6 +75,53 @@ export const WindowManager: React.FC = () => {
       if ((e.metaKey && key.toLowerCase() === "n") || (e.ctrlKey && e.altKey && key.toLowerCase() === "n")) {
         e.preventDefault();
         openWindow("notepad", "Notepad");
+      }
+
+      // Ctrl + Alt + T -> Terminal
+      if (e.ctrlKey && e.altKey && key.toLowerCase() === "t") {
+        e.preventDefault();
+        openWindow("terminal", "Command Prompt");
+      }
+
+      // Ctrl + Alt + M -> Music Player
+      if (e.ctrlKey && e.altKey && key.toLowerCase() === "m") {
+        e.preventDefault();
+        openWindow("music-player", "Music Player");
+      }
+
+      // Ctrl + Alt + V -> Video Player
+      if (e.ctrlKey && e.altKey && key.toLowerCase() === "v") {
+        e.preventDefault();
+        openWindow("video-player", "Video Player");
+      }
+
+      // Win + K or Ctrl + Alt + K -> Typing Game
+      if ((e.metaKey && key.toLowerCase() === "k") || (e.ctrlKey && e.altKey && key.toLowerCase() === "k")) {
+        e.preventDefault();
+        openWindow("typing-game", "Typing Master");
+      }
+
+      // Alt + F4 -> Close active window
+      if (e.altKey && key === "F4") {
+        e.preventDefault();
+        if (activeWindowId) {
+          closeWindow(activeWindowId);
+        }
+      }
+
+      // Win + D or Ctrl + Alt + D -> Show Desktop (Minimize all / Restore all)
+      if ((e.metaKey && key.toLowerCase() === "d") || (e.ctrlKey && e.altKey && key.toLowerCase() === "d")) {
+        e.preventDefault();
+        const anyVisible = windows.some(w => !w.isMinimized);
+        if (anyVisible) {
+          windows.forEach(w => {
+            if (!w.isMinimized) minimizeWindow(w.id);
+          });
+        } else {
+          windows.forEach(w => {
+            if (w.isMinimized) restoreWindow(w.id);
+          });
+        }
       }
     };
 
@@ -178,6 +231,12 @@ function getWindowIcon(type: string, title: string) {
       return <ImageIcon className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />;
     case "typing-game":
       return <Keyboard className="w-4 h-4 text-cyan-600 dark:text-cyan-400" />;
+    case "music-player":
+      return <Music className="w-4 h-4 text-pink-600 dark:text-pink-400" />;
+    case "video-player":
+      return <Video className="w-4 h-4 text-red-600 dark:text-red-400" />;
+    case "settings":
+      return <SettingsIcon className="w-4 h-4 text-blue-600 dark:text-blue-400" />;
     default:
       return <Monitor className="w-4 h-4 text-zinc-600 dark:text-zinc-400" />;
   }
@@ -211,6 +270,12 @@ function renderWindowContent(window: WindowInstance, onClose: () => void) {
       return <ImageViewer fileId={window.props?.fileId} onClose={onClose} />;
     case "typing-game":
       return <TypingGame />;
+    case "music-player":
+      return <MusicPlayer fileId={window.props?.fileId} onClose={onClose} />;
+    case "video-player":
+      return <VideoPlayer fileId={window.props?.fileId} onClose={onClose} />;
+    case "settings":
+      return <Settings />;
     default:
       return (
         <div className="p-8 text-white/50 text-center flex flex-col items-center justify-center h-full">

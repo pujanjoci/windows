@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import { motion, useDragControls } from "framer-motion";
 import { useWindows } from "@/context/WindowContext";
 import { cn } from "@/lib/utils";
@@ -33,6 +33,18 @@ export const Window: React.FC<WindowProps> = ({ id, title, children, icon }) => 
   
   const isActive = activeWindowId === id;
 
+  const windowData = windows.find(w => w.id === id);
+  const [scaleValue, setScaleValue] = useState<number | number[]>(1);
+  const prevFocusTrigger = useRef(windowData?.focusTrigger || 0);
+
+  // Trigger bounce animation when window gets refocus attention
+  useEffect(() => {
+    if (windowData && windowData.focusTrigger && windowData.focusTrigger > prevFocusTrigger.current) {
+      prevFocusTrigger.current = windowData.focusTrigger;
+      setScaleValue([1, 1.025, 0.99, 1.005, 1]);
+    }
+  }, [windowData]);
+
   // Keyboard Escape key to close active window
   useEffect(() => {
     if (!isActive) return;
@@ -45,7 +57,6 @@ export const Window: React.FC<WindowProps> = ({ id, title, children, icon }) => 
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isActive, id, closeWindow]);
 
-  const windowData = windows.find(w => w.id === id);
   if (!windowData || windowData.isMinimized) return null;
 
   const taskbarHeight = 40;
@@ -128,10 +139,16 @@ export const Window: React.FC<WindowProps> = ({ id, title, children, icon }) => 
         width: targetW,
         height: targetH,
         opacity: 1,
-        scale: 1
+        scale: scaleValue
       }}
       exit={{ scale: 0.95, opacity: 0 }}
-      transition={{ type: "spring", damping: 26, stiffness: 240, mass: 0.8 }}
+      transition={{
+        x: { type: "spring", damping: 26, stiffness: 240, mass: 0.8 },
+        y: { type: "spring", damping: 26, stiffness: 240, mass: 0.8 },
+        width: { type: "spring", damping: 26, stiffness: 240, mass: 0.8 },
+        height: { type: "spring", damping: 26, stiffness: 240, mass: 0.8 },
+        scale: { duration: 0.35, ease: "easeInOut" }
+      }}
       drag={!windowData.isMaximized && !windowData.snapped && !isMobile}
       dragControls={dragControls}
       dragListener={false}

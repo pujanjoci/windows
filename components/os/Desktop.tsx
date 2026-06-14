@@ -4,7 +4,7 @@ import React, { useState, useEffect, useMemo } from "react";
 import { useFileSystem, FileSystemItem } from "@/context/FileSystemContext";
 import { useWindows } from "@/context/WindowContext";
 import { useTheme, ThemeName } from "@/context/ThemeContext";
-import { Folder, FileText, FolderPlus, FilePlus, RefreshCcw, Palette, Trash2, Pencil, Terminal, Globe, Mail, Monitor, Image as ImageIcon, Keyboard, Music, Video } from "lucide-react";
+import { Folder, FileText, FolderPlus, FilePlus, RefreshCcw, Palette, Trash2, Pencil, Terminal, Globe, Mail, Monitor, Image as ImageIcon, Keyboard, Music, Video, Bomb, PenTool } from "lucide-react";
 import { ContextMenu, ContextMenuItem } from "@/components/ui/ContextMenu";
 import { motion } from "framer-motion";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -62,7 +62,9 @@ export const Desktop: React.FC = () => {
       "Contact.txt",
       "shortcut.txt",
       "Browser",
-      "Typing Game"
+      "Typing Game",
+      "Word Editor",
+      "Minesweeper"
     ];
     return getChildren("desktop").sort((a, b) => {
       const idxA = sortOrder.indexOf(a.name);
@@ -251,11 +253,17 @@ export const Desktop: React.FC = () => {
         openWindow("contact", "Contact Me", { x: currentX, y: currentY });
       } else if (item.content === "app:typing-game") {
         openWindow("typing-game", "Typing Master", { x: currentX, y: currentY });
+      } else if (item.content === "app:word-processor") {
+        openWindow("word-processor", "Document Editor", { x: currentX, y: currentY });
+      } else if (item.content === "app:minesweeper") {
+        openWindow("minesweeper", "Minesweeper", { x: currentX, y: currentY });
       }
     } else if (isImageFile(item.name)) {
       openWindow("image-viewer", item.name, openProps);
     } else if (item.name.endsWith(".pdf")) {
       openWindow("generic", item.name, openProps);
+    } else if (item.name.endsWith(".docx")) {
+      openWindow("word-processor", item.name, openProps);
     } else if (item.name.endsWith(".mp3") || item.name.endsWith(".wav")) {
       openWindow("music-player", item.name, openProps);
     } else if (item.name.endsWith(".mp4") || item.name.endsWith(".webm")) {
@@ -555,6 +563,12 @@ const DesktopIcon: React.FC<{
     }
     if (item.name === "Typing Game" || item.content === "app:typing-game") {
       return <Keyboard className="w-11 h-11 text-cyan-500" />;
+    }
+    if (item.content === "app:word-processor" || item.name.endsWith(".docx")) {
+      return <PenTool className="w-11 h-11 text-blue-500" />;
+    }
+    if (item.content === "app:minesweeper") {
+      return <Bomb className="w-11 h-11 text-amber-500" />;
     }
     if (isImageFile(item.name)) {
       return <ImageIcon className="w-11 h-11 text-indigo-500" />;

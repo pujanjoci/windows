@@ -18,7 +18,9 @@ import {
   Keyboard,
   Settings as SettingsIcon,
   Music,
-  Video
+  Video,
+  Bomb,
+  PenTool,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -178,6 +180,16 @@ export const StartMenu: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ 
                   icon={<Keyboard className="text-cyan-500" />}
                   label="Typing Game"
                   onClick={() => { openWindow("typing-game", "Typing Master"); onClose(); }}
+                />
+                <PinnedAppItem
+                  icon={<PenTool className="text-blue-500" />}
+                  label="Word Editor"
+                  onClick={() => { openWindow("word-processor", "Document Editor"); onClose(); }}
+                />
+                <PinnedAppItem
+                  icon={<Bomb className="text-amber-500" />}
+                  label="Minesweeper"
+                  onClick={() => { openWindow("minesweeper", "Minesweeper"); onClose(); }}
                 />
                 <PinnedAppItem
                   icon={<Music className="text-pink-500" />}

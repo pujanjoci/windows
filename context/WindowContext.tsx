@@ -16,7 +16,9 @@ export type WindowType =
   | "typing-game"
   | "music-player"
   | "video-player"
-  | "settings";
+  | "settings"
+  | "word-processor"
+  | "minesweeper";
 
 export type WindowInstance = {
   id: string;
@@ -66,6 +68,8 @@ const DEFAULT_SIZES: Record<WindowType, { w: number; h: number }> = {
   "music-player": { w: 420, h: 540 },
   "video-player": { w: 720, h: 480 },
   settings: { w: 680, h: 480 },
+  "word-processor": { w: 850, h: 600 },
+  minesweeper: { w: 420, h: 500 },
 };
 
 export const WindowProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -181,6 +185,22 @@ export const WindowProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         setMaxZIndex(newZ);
         return existing.id;
       }
+    } else if (type === "word-processor" && props?.fileId) {
+      const existing = windows.find(w => w.type === "word-processor" && w.props?.fileId === props.fileId);
+      if (existing) {
+        setWindows(prev => prev.map(w => w.id === existing.id 
+          ? { 
+              ...w, 
+              zIndex: newZ, 
+              isMinimized: false,
+              focusTrigger: (w.focusTrigger || 0) + 1,
+              props: { ...w.props, x: props?.x, y: props?.y }
+            } 
+          : w));
+        setActiveWindowId(existing.id);
+        setMaxZIndex(newZ);
+        return existing.id;
+      }
     } else if (
       type === "projects" || 
       type === "contact" || 
@@ -188,7 +208,9 @@ export const WindowProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       type === "terminal" || 
       type === "typing-game" || 
       type === "settings" ||
-      type === "browser"
+      type === "browser" ||
+      type === "minesweeper" ||
+      (type === "word-processor" && !props?.fileId)
     ) {
       const existing = windows.find(w => w.type === type);
       if (existing) {

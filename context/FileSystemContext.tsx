@@ -29,7 +29,7 @@ type FileSystemAction =
   | { type: "RESET_ALL_POSITIONS"; payload: { parentId: string } };
 
 // Bump this to force a reset of stale local storage caches
-const CURRENT_VERSION = 22;
+const CURRENT_VERSION = 24;
 
 const ABOUT_ME_TXT = `Hi! I'm Pujan Joshi, a passionate React and TypeScript Frontend Engineer.
 I specialize in building rich, interactive, and high-performance web applications with stunning user interfaces and smooth user experiences.
@@ -200,6 +200,49 @@ Just upload your files here and it will be saved.`, createdAt: Date.now() },
     shortcut_txt: { id: "shortcut_txt", name: "shortcut.txt", type: "file", parentId: "desktop", content: SHORTCUTS_TXT, createdAt: Date.now() },
     internet_lnk: { id: "internet_lnk", name: "Browser", type: "file", parentId: "desktop", content: "app:browser", createdAt: Date.now() },
     typing_game_lnk: { id: "typing_game_lnk", name: "Typing Game", type: "file", parentId: "desktop", content: "app:typing-game", createdAt: Date.now() },
+    minesweeper_lnk: { id: "minesweeper_lnk", name: "Minesweeper", type: "file", parentId: "desktop", content: "app:minesweeper", createdAt: Date.now() },
+    welcome_docx: { 
+      id: "welcome_docx", 
+      name: "Welcome Document.docx", 
+      type: "file", 
+      parentId: "documents", 
+      content: `<h1 style="color: #2b579a; font-family: sans-serif; text-align: center;">Welcome to WordCraft</h1>
+<p style="text-align: center; font-style: italic; color: #666; font-size: 13px;">A Microsoft Word-style Rich Text Document Editor inside a Web OS</p>
+<hr style="border: 0; border-top: 1px solid #ccc; margin: 15px 0;" />
+<p>This is a simulated rich document file with extension <strong>.docx</strong>. Double-clicking any <strong>.docx</strong> file will open it directly in this editor, whereas regular text files (.txt) continue to open in Notepad.</p>
+<h2 style="color: #2b579a; font-family: sans-serif; font-size: 16px;">Key Editor Features</h2>
+<ul>
+  <li><strong>Formatting Ribbon:</strong> Use standard options for headings, font size scaling, colors, bold/italic, lists, and alignments.</li>
+  <li><strong>Virtual VFS Integration:</strong> Any documents created or edited can be saved back to the simulated drive or exported to your local disk as clean HTML documents.</li>
+  <li><strong>Insert Elements:</strong> Easily embed tables, image URLs, and hyperlinks directly into your sheet.</li>
+</ul>
+<br />
+<table style="width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 12px; font-family: sans-serif;">
+  <thead>
+    <tr style="background-color: #f3f4f6;">
+      <th style="border: 1px solid #d1d5db; padding: 8px; text-align: left;">Feature</th>
+      <th style="border: 1px solid #d1d5db; padding: 8px; text-align: left;">Supported</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="border: 1px solid #d1d5db; padding: 8px; font-weight: bold;">Rich Formatting</td>
+      <td style="border: 1px solid #d1d5db; padding: 8px; color: #16a34a; font-weight: bold;">Yes</td>
+    </tr>
+    <tr>
+      <td style="border: 1px solid #d1d5db; padding: 8px; font-weight: bold;">VFS Integration</td>
+      <td style="border: 1px solid #d1d5db; padding: 8px; color: #16a34a; font-weight: bold;">Yes</td>
+    </tr>
+    <tr>
+      <td style="border: 1px solid #d1d5db; padding: 8px; font-weight: bold;">Tables & Links</td>
+      <td style="border: 1px solid #d1d5db; padding: 8px; color: #16a34a; font-weight: bold;">Yes</td>
+    </tr>
+  </tbody>
+</table>
+<br />
+<p>Enjoy writing and designing documents!</p>`, 
+      createdAt: Date.now() 
+    },
   },
   rootId: "root",
 };

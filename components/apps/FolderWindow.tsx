@@ -22,7 +22,9 @@ import {
   ExternalLink,
   ChevronRightSquare,
   Music,
-  Video
+  Video,
+  Bomb,
+  PenTool
 } from "lucide-react";
 
 const GithubIcon: React.FC<{ className?: string }> = ({ className }) => (
@@ -121,11 +123,17 @@ export const FolderWindow: React.FC<{ initialPathId?: string }> = ({ initialPath
         openWindow("browser", "The Internet");
       } else if (item.content === "app:contact") {
         openWindow("contact", "Contact Me");
+      } else if (item.content === "app:word-processor") {
+        openWindow("word-processor", "Document Editor");
+      } else if (item.content === "app:minesweeper") {
+        openWindow("minesweeper", "Minesweeper");
       }
     } else if (item.name.endsWith(".jpg") || item.name.endsWith(".png") || item.name.endsWith(".jpeg")) {
       openWindow("image-viewer", item.name, { fileId: item.id });
     } else if (item.name.endsWith(".pdf")) {
       openWindow("generic", item.name, { fileId: item.id, content: item.content });
+    } else if (item.name.endsWith(".docx")) {
+      openWindow("word-processor", item.name, { fileId: item.id, content: item.content });
     } else if (item.name.endsWith(".mp3") || item.name.endsWith(".wav")) {
       openWindow("music-player", item.name, { fileId: item.id });
     } else if (item.name.endsWith(".mp4") || item.name.endsWith(".webm")) {
@@ -476,6 +484,10 @@ export const FolderWindow: React.FC<{ initialPathId?: string }> = ({ initialPath
                                 ) : (
                                   <Folder className="w-4 h-4 text-blue-500 fill-blue-500/10 shrink-0" />
                                 )
+                              ) : item.content === "app:word-processor" || item.name.endsWith(".docx") ? (
+                                <PenTool className="w-4 h-4 text-blue-500 shrink-0" />
+                              ) : item.content === "app:minesweeper" ? (
+                                <Bomb className="w-4 h-4 text-amber-500 shrink-0" />
                               ) : isImageFile(item.name) ? (
                                 <ImageIcon className="w-4 h-4 text-indigo-500 shrink-0" />
                               ) : item.name.endsWith(".mp3") || item.name.endsWith(".wav") ? (
@@ -575,6 +587,10 @@ const FolderItemGrid: React.FC<{
           ) : (
             <Folder className="w-11 h-11 text-blue-500 dark:text-blue-400 fill-blue-500/10 group-hover:scale-105 transition-transform" />
           )
+        ) : item.content === "app:word-processor" || item.name.endsWith(".docx") ? (
+          <PenTool className="w-11 h-11 text-blue-500 group-hover:scale-105 transition-transform" />
+        ) : item.content === "app:minesweeper" ? (
+          <Bomb className="w-11 h-11 text-amber-500 group-hover:scale-105 transition-transform" />
         ) : isImageFile(item.name) ? (
           <ImageIcon className="w-11 h-11 text-indigo-500 group-hover:scale-105 transition-transform" />
         ) : item.name.endsWith(".pdf") ? (

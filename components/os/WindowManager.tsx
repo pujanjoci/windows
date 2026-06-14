@@ -17,7 +17,8 @@ import {
   Keyboard,
   Settings as SettingsIcon,
   Music,
-  Video
+  Video,
+  Bomb,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -35,6 +36,8 @@ const TypingGame = React.lazy(() => import("@/components/apps/TypingGame").then(
 const Settings = React.lazy(() => import("@/components/apps/Settings").then(m => ({ default: m.Settings })));
 const MusicPlayer = React.lazy(() => import("@/components/apps/MusicPlayer").then(m => ({ default: m.MusicPlayer })));
 const VideoPlayer = React.lazy(() => import("@/components/apps/VideoPlayer").then(m => ({ default: m.VideoPlayer })));
+const WordProcessor = React.lazy(() => import("@/components/apps/WordProcessor").then(m => ({ default: m.WordProcessor })));
+const Minesweeper = React.lazy(() => import("@/components/apps/Minesweeper").then(m => ({ default: m.Minesweeper })));
 
 export const WindowManager: React.FC = () => {
   const { windows, activeWindowId, openWindow, closeWindow, focusWindow, restoreWindow, minimizeWindow } = useWindows();
@@ -237,6 +240,10 @@ function getWindowIcon(type: string, title: string) {
       return <Video className="w-4 h-4 text-red-600 dark:text-red-400" />;
     case "settings":
       return <SettingsIcon className="w-4 h-4 text-blue-600 dark:text-blue-400" />;
+    case "word-processor":
+      return <FileText className="w-4 h-4 text-blue-600 dark:text-blue-400" />;
+    case "minesweeper":
+      return <Bomb className="w-4 h-4 text-amber-600 dark:text-amber-400" />;
     default:
       return <Monitor className="w-4 h-4 text-zinc-600 dark:text-zinc-400" />;
   }
@@ -276,6 +283,16 @@ function renderWindowContent(window: WindowInstance, onClose: () => void) {
       return <VideoPlayer fileId={window.props?.fileId} onClose={onClose} />;
     case "settings":
       return <Settings />;
+    case "word-processor":
+      return (
+        <WordProcessor 
+          fileId={window.props?.fileId} 
+          initialContent={window.props?.content} 
+          onClose={onClose} 
+        />
+      );
+    case "minesweeper":
+      return <Minesweeper />;
     default:
       return (
         <div className="p-8 text-white/50 text-center flex flex-col items-center justify-center h-full">

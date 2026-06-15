@@ -70,7 +70,7 @@ export const StartMenu: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ 
       exit={{ y: 15, opacity: 0 }}
       transition={{ duration: 0.15, ease: "easeOut" }}
       className={cn(
-        "fixed z-[10001] flex flex-col overflow-hidden shadow-2xl transition-all duration-300 border border-black/10 dark:border-white/10 bg-[#f3f3f3]/90 dark:bg-[#1a1f26]/95 text-black dark:text-white backdrop-blur-md",
+        "fixed z-[10001] flex flex-col overflow-hidden shadow-2xl border border-black/10 dark:border-white/10 bg-[#f3f3f3]/90 dark:bg-[#1a1f26]/95 text-black dark:text-white backdrop-blur-md",
         isMobile 
           ? "bottom-12 left-2 right-2 w-[calc(100vw-1rem)]" 
           : "bottom-12 left-1/2 -translate-x-1/2 w-[480px] rounded-2xl"
@@ -78,7 +78,7 @@ export const StartMenu: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ 
     >
       <div className="flex-1 flex flex-col p-5">
         {/* Search bar */}
-        <div className="flex items-center bg-black/5 dark:bg-white/5 rounded-lg px-3 py-2 gap-3 mb-4 focus-within:ring-1 focus-within:ring-blue-500/50 transition-all border border-black/5 dark:border-white/5">
+        <div className="flex items-center bg-black/5 dark:bg-white/5 rounded-lg px-3 py-2 gap-3 mb-4 focus-within:ring-1 focus-within:ring-blue-500/50 transition-colors border border-black/5 dark:border-white/5">
           <Search className="w-4 h-4 opacity-50 text-zinc-600 dark:text-zinc-400" />
           <input
             autoFocus
@@ -221,7 +221,7 @@ export const StartMenu: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ 
           </div>
           <button
             onClick={handleReset}
-            className="p-1.5 rounded-full hover:bg-red-500/10 dark:hover:bg-red-500/20 text-red-500 hover:bg-red-500/15 cursor-default transition-all"
+            className="p-1.5 rounded-full hover:bg-red-500/10 dark:hover:bg-red-500/20 text-red-500 hover:bg-red-500/15 cursor-default transition-colors"
             title="Reset System"
           >
             <Power className="w-4 h-4" />

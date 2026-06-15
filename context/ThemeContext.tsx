@@ -5,7 +5,7 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 export type ThemeName = "win11";
 
 export const DEFAULT_WALLPAPERS: Record<ThemeName, string> = {
-  win11: "/images/wallpaper.jpg",
+  win11: "/images/wallpaper.webp",
 };
 
 export const DEFAULT_ACCENTS: Record<ThemeName, string> = {

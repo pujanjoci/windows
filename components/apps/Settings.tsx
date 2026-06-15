@@ -66,8 +66,8 @@ export const Settings: React.FC = () => {
   const [activeTab, setActiveTab] = useState<ActiveTab>("system");
 
   const wallpapers = [
-    { name: "Windows 11 Default", path: "/images/wallpaper.jpg", thumbnail: "/images/wallpaper.jpg" },
-    { name: "Windows 11 Lockscreen", path: "/images/lock.jpg", thumbnail: "/images/lock.jpg" },
+    { name: "Windows 11 Default", path: "/images/wallpaper.webp", thumbnail: "/images/wallpaper.webp" },
+    { name: "Windows 11 Lockscreen", path: "/images/lock.webp", thumbnail: "/images/lock.webp" },
     { name: "Midnight Navy (Solid)", path: "solid:#0f172a", thumbnail: "" },
     { name: "Deep Charcoal (Solid)", path: "solid:#18181b", thumbnail: "" }
   ];

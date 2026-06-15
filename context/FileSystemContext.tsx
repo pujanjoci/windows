@@ -29,7 +29,7 @@ type FileSystemAction =
   | { type: "RESET_ALL_POSITIONS"; payload: { parentId: string } };
 
 // Bump this to force a reset of stale local storage caches
-const CURRENT_VERSION = 24;
+const CURRENT_VERSION = 25;
 
 const ABOUT_ME_TXT = `Hi! I'm Pujan Joshi, a passionate React and TypeScript Frontend Engineer.
 I specialize in building rich, interactive, and high-performance web applications with stunning user interfaces and smooth user experiences.
@@ -158,15 +158,15 @@ const initialState: FileSystemState = {
 
     // Photos folder inside User folder
     photos: { id: "photos", name: "Photos", type: "folder", parentId: "user_folder", createdAt: Date.now() },
-    photo_1: { id: "photo_1", name: "profile-1.jpg", type: "file", parentId: "photos", content: "/images/profile-1.jpg", createdAt: Date.now() },
-    photo_2: { id: "photo_2", name: "profile-2.jpg", type: "file", parentId: "photos", content: "/images/profile-2.jpg", createdAt: Date.now() },
-    photo_3: { id: "photo_3", name: "profile-3.jpg", type: "file", parentId: "photos", content: "/images/profile-3.jpg", createdAt: Date.now() },
-    photo_4: { id: "photo_4", name: "profile-4.jpg", type: "file", parentId: "photos", content: "/images/profile-4.jpg", createdAt: Date.now() },
-    photo_5: { id: "photo_5", name: "profile-5.jpg", type: "file", parentId: "photos", content: "/images/profile-5.jpg", createdAt: Date.now() },
-    photo_6: { id: "photo_6", name: "profile-6.jpg", type: "file", parentId: "photos", content: "/images/profile-6.jpg", createdAt: Date.now() },
-    photo_7: { id: "photo_7", name: "profile-7.jpg", type: "file", parentId: "photos", content: "/images/profile-7.jpg", createdAt: Date.now() },
-    photo_8: { id: "photo_8", name: "profile-8.jpg", type: "file", parentId: "photos", content: "/images/profile-8.jpg", createdAt: Date.now() },
-    photo_9: { id: "photo_9", name: "profile-9.jpg", type: "file", parentId: "photos", content: "/images/profile-9.jpg", createdAt: Date.now() },
+    photo_1: { id: "photo_1", name: "profile-1.webp", type: "file", parentId: "photos", content: "/images/profile-1.webp", createdAt: Date.now() },
+    photo_2: { id: "photo_2", name: "profile-2.webp", type: "file", parentId: "photos", content: "/images/profile-2.webp", createdAt: Date.now() },
+    photo_3: { id: "photo_3", name: "profile-3.webp", type: "file", parentId: "photos", content: "/images/profile-3.webp", createdAt: Date.now() },
+    photo_4: { id: "photo_4", name: "profile-4.webp", type: "file", parentId: "photos", content: "/images/profile-4.webp", createdAt: Date.now() },
+    photo_5: { id: "photo_5", name: "profile-5.webp", type: "file", parentId: "photos", content: "/images/profile-5.webp", createdAt: Date.now() },
+    photo_6: { id: "photo_6", name: "profile-6.webp", type: "file", parentId: "photos", content: "/images/profile-6.webp", createdAt: Date.now() },
+    photo_7: { id: "photo_7", name: "profile-7.webp", type: "file", parentId: "photos", content: "/images/profile-7.webp", createdAt: Date.now() },
+    photo_8: { id: "photo_8", name: "profile-8.webp", type: "file", parentId: "photos", content: "/images/profile-8.webp", createdAt: Date.now() },
+    photo_9: { id: "photo_9", name: "profile-9.webp", type: "file", parentId: "photos", content: "/images/profile-9.webp", createdAt: Date.now() },
 
     // Music folder inside User folder
     music: { id: "music", name: "Music", type: "folder", parentId: "user_folder", createdAt: Date.now() },

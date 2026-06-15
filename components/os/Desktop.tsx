@@ -385,7 +385,7 @@ export const Desktop: React.FC = () => {
     <div
       id="desktop-container"
       className={cn(
-        "relative flex-1 w-full h-full bg-cover bg-center overflow-hidden transition-all duration-300",
+        "relative flex-1 w-full h-full bg-cover bg-center overflow-hidden transition-[filter] duration-300",
         isDark && "brightness-75 contrast-[1.05]"
       )}
       style={{ backgroundImage: `url('${wallpaper}')` }}
@@ -629,7 +629,7 @@ const DesktopIcon: React.FC<{
       <div 
         onClick={onSelect}
         className={cn(
-          "flex flex-col items-center gap-1 group cursor-default p-1.5 rounded-lg border select-none transition-all outline-none",
+          "flex flex-col items-center gap-1 group cursor-default p-1.5 rounded-lg border select-none transition-colors outline-none",
           isSelected
             ? "bg-purple-500/20 border-purple-500/40 hover:bg-purple-500/25"
             : "border-transparent hover:bg-white/10 hover:border-white/10 active:bg-white/15"

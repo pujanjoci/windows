@@ -198,7 +198,7 @@ export const BootScreen: React.FC<BootScreenProps> = ({ onComplete }) => {
             exit={{ y: -150, opacity: 0 }}
             transition={{ type: "spring", stiffness: 120, damping: 20 }}
             className="absolute inset-0 bg-cover bg-center flex flex-col justify-between p-12 text-white"
-            style={{ backgroundImage: "url('/images/lock.jpg'), url('/images/wallpaper.jpg')" }}
+            style={{ backgroundImage: "url('/images/lock.webp'), url('/images/wallpaper.webp')" }}
           >
             {/* Subtle overlay */}
             <div className="absolute inset-0 bg-black/25" />
@@ -238,7 +238,7 @@ export const BootScreen: React.FC<BootScreenProps> = ({ onComplete }) => {
             exit={{ opacity: 0, scale: 0.95 }}
             transition={{ type: "spring", stiffness: 120, damping: 20 }}
             className="absolute inset-0 bg-cover bg-center flex items-center justify-center"
-            style={{ backgroundImage: "url('/images/lock.jpg'), url('/images/wallpaper.jpg')" }}
+            style={{ backgroundImage: "url('/images/lock.webp'), url('/images/wallpaper.webp')" }}
           >
             {/* Glass blur cover */}
             <div className="absolute inset-0 bg-black/45 backdrop-blur-2xl" />

@@ -190,7 +190,7 @@ export const Taskbar: React.FC<{ onStartClick: () => void }> = ({ onStartClick }
     <div 
       onContextMenu={handleTaskbarContextMenu}
       className={cn(
-        "w-full flex items-center z-[10000] border-t select-none transition-all duration-300 relative shrink-0",
+        "w-full flex items-center z-[10000] border-t select-none transition-[height,background-color] duration-300 relative shrink-0",
         "bg-[#f3f3f3]/85 dark:bg-[#101318]/85 backdrop-blur-md border-t-black/10 dark:border-t-white/10 text-black dark:text-white px-2",
         // Dynamic height
         taskbarSize === "small" ? "h-8" : taskbarSize === "large" ? "h-12" : "h-10",
@@ -218,7 +218,7 @@ export const Taskbar: React.FC<{ onStartClick: () => void }> = ({ onStartClick }
           onMouseEnter={() => setHoveredIcon("Start Menu")}
           onMouseLeave={() => setHoveredIcon(null)}
           className={cn(
-            "flex items-center justify-center rounded hover:bg-black/5 text-blue-500 transition-all cursor-default outline-none",
+            "flex items-center justify-center rounded hover:bg-black/5 text-blue-500 transition-colors cursor-default outline-none",
             taskbarSize === "small" ? "w-7 h-7" : taskbarSize === "large" ? "w-11 h-11" : "w-9 h-9"
           )}
         >
@@ -259,7 +259,7 @@ export const Taskbar: React.FC<{ onStartClick: () => void }> = ({ onStartClick }
               onMouseEnter={() => setHoveredIcon(window.title)}
               onMouseLeave={() => setHoveredIcon(null)}
               className={cn(
-                "flex items-center transition-all group relative cursor-default border border-transparent outline-none",
+                "flex items-center transition-colors group relative cursor-default border border-transparent outline-none",
                 // Height, spacing, padding based on size
                 taskbarSize === "small" 
                   ? "h-6 text-[10px] px-2 gap-1.5" 
@@ -332,7 +332,7 @@ export const Taskbar: React.FC<{ onStartClick: () => void }> = ({ onStartClick }
             onMouseEnter={() => setHoveredIcon(`+${overflowWindows.length} more windows`)}
             onMouseLeave={() => setHoveredIcon(null)}
             className={cn(
-              "flex items-center justify-center transition-all group relative cursor-default border border-transparent outline-none",
+              "flex items-center justify-center transition-colors group relative cursor-default border border-transparent outline-none",
               taskbarSize === "small" 
                 ? "h-6 text-[10px] px-2 gap-1" 
                 : taskbarSize === "large" 
@@ -403,7 +403,7 @@ export const Taskbar: React.FC<{ onStartClick: () => void }> = ({ onStartClick }
         {/* Time display */}
         <div 
           onClick={() => setIsCalendarOpen(!isCalendarOpen)}
-          className="flex flex-col items-end cursor-default hover:bg-black/5 dark:hover:bg-white/5 px-1 py-0.5 rounded transition-all outline-none"
+          className="flex flex-col items-end cursor-default hover:bg-black/5 dark:hover:bg-white/5 px-1 py-0.5 rounded transition-colors outline-none"
         >
           <span className="text-[11px] font-bold tracking-tight" suppressHydrationWarning>
             {mounted ? time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "--:--"}
@@ -679,7 +679,7 @@ export const Taskbar: React.FC<{ onStartClick: () => void }> = ({ onStartClick }
                     key={mode}
                     onClick={() => setTaskbarShowMode(mode)}
                     className={cn(
-                      "py-1 px-2 rounded-md transition-all font-medium capitalize",
+                      "py-1 px-2 rounded-md transition-colors font-medium capitalize",
                       taskbarShowMode === mode 
                         ? "bg-white dark:bg-zinc-800 shadow-sm text-blue-600 dark:text-blue-400 font-bold" 
                         : "hover:bg-black/5 dark:hover:bg-white/5 text-zinc-600 dark:text-zinc-400"
@@ -700,7 +700,7 @@ export const Taskbar: React.FC<{ onStartClick: () => void }> = ({ onStartClick }
                     key={align}
                     onClick={() => setTaskbarAlignment(align)}
                     className={cn(
-                      "py-1 px-2 rounded-md transition-all font-medium capitalize",
+                      "py-1 px-2 rounded-md transition-colors font-medium capitalize",
                       taskbarAlignment === align 
                         ? "bg-white dark:bg-zinc-800 shadow-sm text-blue-600 dark:text-blue-400 font-bold" 
                         : "hover:bg-black/5 dark:hover:bg-white/5 text-zinc-600 dark:text-zinc-400"
@@ -721,7 +721,7 @@ export const Taskbar: React.FC<{ onStartClick: () => void }> = ({ onStartClick }
                     key={size}
                     onClick={() => setTaskbarSize(size)}
                     className={cn(
-                      "py-1 px-2 rounded-md transition-all font-medium capitalize",
+                      "py-1 px-2 rounded-md transition-colors font-medium capitalize",
                       taskbarSize === size 
                         ? "bg-white dark:bg-zinc-800 shadow-sm text-blue-600 dark:text-blue-400 font-bold" 
                         : "hover:bg-black/5 dark:hover:bg-white/5 text-zinc-600 dark:text-zinc-400"

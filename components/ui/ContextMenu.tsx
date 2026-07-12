@@ -71,24 +71,26 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({ x, y, items, onClose }
     <div
       ref={menuRef}
       className={cn(
-        "fixed z-[99999] min-w-[160px] py-1 rounded-lg glass-dark border border-white/10 shadow-2xl animate-in fade-in zoom-in-95 duration-100"
+        "fixed z-[99999] min-w-[170px] py-1.5 rounded-xl",
+        "glass-menu border border-black/10 dark:border-white/10 shadow-xl",
+        "animate-in fade-in zoom-in-95 duration-100"
       )}
       style={{ left: position.x, top: position.y }}
     >
       {items.map((item, index) => (
         <React.Fragment key={index}>
           <button
-            className="w-full px-3 py-1.5 flex items-center gap-3 text-sm text-white/90 hover:bg-white/10 transition-colors text-left"
+            className="w-[calc(100%-8px)] mx-1 px-2.5 py-1.5 flex items-center gap-2.5 text-xs font-medium text-neutral-800 dark:text-neutral-200 hover:bg-black/5 dark:hover:bg-white/5 rounded-md transition-all text-left cursor-default"
             onClick={(e) => {
               e.stopPropagation();
               item.onClick();
               onClose();
             }}
           >
-            {item.icon && <span className="w-4 h-4">{item.icon}</span>}
-            <span className="flex-1">{item.label}</span>
+            {item.icon && <span className="w-3.5 h-3.5 opacity-75 shrink-0">{item.icon}</span>}
+            <span className="flex-1 truncate">{item.label}</span>
           </button>
-          {item.divider && <div className="my-1 border-t border-white/10" />}
+          {item.divider && <div className="my-1 border-t border-black/5 dark:border-white/10 mx-1" />}
         </React.Fragment>
       ))}
     </div>,

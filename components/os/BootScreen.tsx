@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTheme } from "@/context/ThemeContext";
 import { User, Loader2, ArrowRight, Lock, Key, Fingerprint, ChevronUp } from "lucide-react";
+import Image from "next/image";
 
 interface BootScreenProps {
   onComplete: () => void;
@@ -98,6 +99,8 @@ export const BootScreen: React.FC<BootScreenProps> = ({ onComplete }) => {
     }, 1200);
   };
 
+  const showBackground = phase === "lockscreen" || phase === "login";
+
   if (phase === "complete") return null;
 
   return (
@@ -107,6 +110,39 @@ export const BootScreen: React.FC<BootScreenProps> = ({ onComplete }) => {
       transition={{ duration: 0.6 }}
       className="absolute inset-0 z-[99999] bg-black select-none overflow-hidden font-sans"
     >
+      {/* Preloaded & Optimized Background Image */}
+      <AnimatePresence>
+        {showBackground && (
+          <motion.div
+            key="boot-background"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.8 }}
+            className="absolute inset-0 z-0 bg-zinc-950"
+          >
+            <Image
+              src="/images/lock.webp"
+              alt="Lock Screen Background"
+              fill
+              priority
+              sizes="100vw"
+              className="object-cover pointer-events-none select-none"
+              quality={80}
+            />
+            {/* Dynamic glassmorphic blur and overlay transition */}
+            <motion.div 
+              animate={{ 
+                backgroundColor: phase === "login" ? "rgba(0, 0, 0, 0.45)" : "rgba(0, 0, 0, 0.25)",
+                backdropFilter: phase === "login" ? "blur(32px)" : "blur(0px)"
+              }}
+              transition={{ duration: 0.6, ease: "easeInOut" }}
+              className="absolute inset-0 z-10 pointer-events-none" 
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <AnimatePresence mode="wait">
         
         {/* Phase 1: BIOS */}
@@ -197,11 +233,8 @@ export const BootScreen: React.FC<BootScreenProps> = ({ onComplete }) => {
             animate={{ opacity: 1 }}
             exit={{ y: -150, opacity: 0 }}
             transition={{ type: "spring", stiffness: 120, damping: 20 }}
-            className="absolute inset-0 bg-cover bg-center flex flex-col justify-between p-12 text-white"
-            style={{ backgroundImage: "url('/images/lock.webp'), url('/images/wallpaper.webp')" }}
+            className="absolute inset-0 flex flex-col justify-between p-12 text-white z-10"
           >
-            {/* Subtle overlay */}
-            <div className="absolute inset-0 bg-black/25" />
 
             {/* Time & Date */}
             <div className="relative z-10 flex flex-col items-center mt-12 text-center select-none">
@@ -237,11 +270,8 @@ export const BootScreen: React.FC<BootScreenProps> = ({ onComplete }) => {
             animate={{ y: 0, opacity: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
             transition={{ type: "spring", stiffness: 120, damping: 20 }}
-            className="absolute inset-0 bg-cover bg-center flex items-center justify-center"
-            style={{ backgroundImage: "url('/images/lock.webp'), url('/images/wallpaper.webp')" }}
+            className="absolute inset-0 flex items-center justify-center z-10"
           >
-            {/* Glass blur cover */}
-            <div className="absolute inset-0 bg-black/45 backdrop-blur-2xl" />
 
             <div className="relative z-10 flex flex-col items-center gap-7 p-8 rounded-3xl max-w-sm w-full bg-white/5 border border-white/10 shadow-2xl backdrop-blur-md">
               

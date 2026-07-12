@@ -128,7 +128,7 @@ export const FolderWindow: React.FC<{ initialPathId?: string }> = ({ initialPath
       } else if (item.content === "app:minesweeper") {
         openWindow("minesweeper", "Minesweeper");
       }
-    } else if (item.name.endsWith(".jpg") || item.name.endsWith(".png") || item.name.endsWith(".jpeg")) {
+    } else if (isImageFile(item.name)) {
       openWindow("image-viewer", item.name, { fileId: item.id });
     } else if (item.name.endsWith(".pdf")) {
       openWindow("generic", item.name, { fileId: item.id, content: item.content });

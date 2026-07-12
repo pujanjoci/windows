@@ -26,6 +26,11 @@ import { motion } from "framer-motion";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 
+const isImageFile = (name: string): boolean => {
+  const ext = name.split(".").pop()?.toLowerCase();
+  return ["jpg", "jpeg", "png", "gif", "webp", "svg"].includes(ext || "");
+};
+
 export const StartMenu: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ isOpen, onClose }) => {
   const { openWindow } = useWindows();
   const { getChildren } = useFileSystem();
@@ -101,7 +106,7 @@ export const StartMenu: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ 
                   onClick={() => {
                     if (item.type === "folder") {
                       openWindow("folder", item.name, { path: item.id });
-                    } else if (item.name.endsWith(".jpg") || item.name.endsWith(".png") || item.name.endsWith(".jpeg")) {
+                    } else if (isImageFile(item.name)) {
                       openWindow("image-viewer", item.name, { fileId: item.id });
                     } else if (item.name.endsWith(".mp3") || item.name.endsWith(".wav")) {
                       openWindow("music-player", item.name, { fileId: item.id });
@@ -120,7 +125,7 @@ export const StartMenu: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ 
                     <Music className="w-4 h-4 text-pink-500" />
                   ) : item.name.endsWith(".mp4") || item.name.endsWith(".webm") ? (
                     <Video className="w-4 h-4 text-red-500" />
-                  ) : item.name.endsWith(".jpg") || item.name.endsWith(".png") || item.name.endsWith(".jpeg") ? (
+                  ) : isImageFile(item.name) ? (
                     <ImageIcon className="w-4 h-4 text-indigo-500" />
                   ) : (
                     <FileText className="w-4 h-4 text-zinc-500" />

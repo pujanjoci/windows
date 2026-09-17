@@ -106,6 +106,8 @@ export const StartMenu: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ 
                   onClick={() => {
                     if (item.type === "folder") {
                       openWindow("folder", item.name, { path: item.id });
+                    } else if (item.content === "app:mail") {
+                      openWindow("mail", "Mail");
                     } else if (isImageFile(item.name)) {
                       openWindow("image-viewer", item.name, { fileId: item.id });
                     } else if (item.name.endsWith(".mp3") || item.name.endsWith(".wav")) {
@@ -121,6 +123,8 @@ export const StartMenu: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ 
                 >
                   {item.type === "folder" ? (
                     <Folder className="w-4 h-4 text-blue-600" />
+                  ) : item.content === "app:mail" ? (
+                    <Mail className="w-4 h-4 text-blue-500" />
                   ) : item.name.endsWith(".mp3") || item.name.endsWith(".wav") ? (
                     <Music className="w-4 h-4 text-pink-500" />
                   ) : item.name.endsWith(".mp4") || item.name.endsWith(".webm") ? (
@@ -141,6 +145,11 @@ export const StartMenu: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ 
             <div className="flex flex-col gap-3">
               <span className="text-[10px] uppercase font-bold opacity-45 px-2 tracking-wider">Pinned Apps</span>
               <div className="grid grid-cols-3 sm:grid-cols-4 gap-x-2 gap-y-3">
+                <PinnedAppItem
+                  icon={<Mail className="text-blue-500" />}
+                  label="Mail"
+                  onClick={() => { openWindow("mail", "Mail"); onClose(); }}
+                />
                 <PinnedAppItem
                   icon={<Monitor className="text-blue-500" />}
                   label="My Computer"

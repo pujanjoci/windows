@@ -18,7 +18,8 @@ export type WindowType =
   | "video-player"
   | "settings"
   | "word-processor"
-  | "minesweeper";
+  | "minesweeper"
+  | "mail";
 
 export type WindowInstance = {
   id: string;
@@ -70,6 +71,7 @@ const DEFAULT_SIZES: Record<WindowType, { w: number; h: number }> = {
   settings: { w: 680, h: 480 },
   "word-processor": { w: 850, h: 600 },
   minesweeper: { w: 420, h: 500 },
+  mail: { w: 920, h: 580 },
 };
 
 export const WindowProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -210,6 +212,7 @@ export const WindowProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       type === "settings" ||
       type === "browser" ||
       type === "minesweeper" ||
+      type === "mail" ||
       (type === "word-processor" && !props?.fileId)
     ) {
       const existing = windows.find(w => w.type === type);

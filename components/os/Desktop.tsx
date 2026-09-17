@@ -4,7 +4,7 @@ import React, { useState, useEffect, useMemo } from "react";
 import { useFileSystem, FileSystemItem } from "@/context/FileSystemContext";
 import { useWindows } from "@/context/WindowContext";
 import { useTheme, ThemeName } from "@/context/ThemeContext";
-import { Folder, FileText, FolderPlus, FilePlus, RefreshCcw, Palette, Trash2, Pencil, Terminal, Globe, Mail, Monitor, Image as ImageIcon, Keyboard, Music, Video, Bomb, PenTool } from "lucide-react";
+import { Folder, FileText, FolderPlus, FilePlus, RefreshCcw, Palette, Trash2, Pencil, Terminal, Globe, Mail, Monitor, Image as ImageIcon, Keyboard, Music, Video, Bomb, PenTool, Maximize2 } from "lucide-react";
 import { ContextMenu, ContextMenuItem } from "@/components/ui/ContextMenu";
 import { motion } from "framer-motion";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -29,16 +29,37 @@ export const Desktop: React.FC = () => {
   const [selectionStart, setSelectionStart] = useState({ x: 0, y: 0 });
   const [selectionCurrent, setSelectionCurrent] = useState({ x: 0, y: 0 });
 
-  // Show notification after 3 seconds
+  // Show notification after 2.5 seconds if user hasn't already dismissed or accepted
   useEffect(() => {
-    const isDismissed = sessionStorage.getItem("dismiss-shortcut-tip");
+    const isDismissed = localStorage.getItem("dismiss_shortcut_tip") === "true" || sessionStorage.getItem("dismiss-shortcut-tip") === "true";
+    const preference = localStorage.getItem("immersive_mode_preference");
+
+    // If user previously accepted immersive mode, automatically enter fullscreen on the first interaction
+    if (preference === "accepted" && !document.fullscreenElement) {
+      const handleFirstInteraction = () => {
+        if (!document.fullscreenElement) {
+          document.documentElement.requestFullscreen()
+            .then(() => {
+              const nav = navigator as any;
+              if (nav.keyboard && nav.keyboard.lock) {
+                nav.keyboard.lock(["Tab", "KeyE", "KeyN", "KeyD", "KeyK", "Escape"]).catch(() => {});
+              }
+            })
+            .catch(() => {});
+        }
+        window.removeEventListener("click", handleFirstInteraction);
+      };
+      window.addEventListener("click", handleFirstInteraction, { once: true });
+      return;
+    }
+
     if (isDismissed) return;
 
     const timer = setTimeout(() => {
       if (!document.fullscreenElement) {
         setShowShortcutNotification(true);
       }
-    }, 3000);
+    }, 2500);
 
     return () => clearTimeout(timer);
   }, []);
@@ -57,6 +78,7 @@ export const Desktop: React.FC = () => {
   const desktopItems = useMemo(() => {
     const sortOrder = [
       "My Computer",
+      "Mail",
       "Projects",
       "Resume.pdf",
       "Contact.txt",
@@ -76,30 +98,60 @@ export const Desktop: React.FC = () => {
     });
   }, [getChildren]);
 
-  // Window-level mouse listeners for dragging selection
+  // Single global resize tracker with requestAnimationFrame debounce
+  const [winSize, setWinSize] = useState({ 
+    width: typeof window !== "undefined" ? window.innerWidth : 1024,
+    height: typeof window !== "undefined" ? window.innerHeight : 768
+  });
+
+  useEffect(() => {
+    let rId: number | null = null;
+    const handleResize = () => {
+      if (rId) cancelAnimationFrame(rId);
+      rId = requestAnimationFrame(() => {
+        setWinSize({
+          width: window.innerWidth,
+          height: window.innerHeight,
+        });
+      });
+    };
+    window.addEventListener("resize", handleResize, { passive: true });
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      if (rId) cancelAnimationFrame(rId);
+    };
+  }, []);
+
+  // Window-level mouse listeners for dragging selection with rAF throttling
   useEffect(() => {
     if (!isSelecting) return;
 
+    let rId: number | null = null;
     const handleMouseMove = (e: MouseEvent) => {
-      const desktopElement = document.getElementById("desktop-container");
-      if (!desktopElement) return;
-      const rect = desktopElement.getBoundingClientRect();
-      // Clamp coordinates inside the desktop boundaries
-      const x = Math.max(0, Math.min(rect.width, e.clientX - rect.left));
-      const y = Math.max(0, Math.min(rect.height, e.clientY - rect.top));
-      setSelectionCurrent({ x, y });
+      if (rId) cancelAnimationFrame(rId);
+      rId = requestAnimationFrame(() => {
+        const desktopElement = document.getElementById("desktop-container");
+        if (!desktopElement) return;
+        const rect = desktopElement.getBoundingClientRect();
+        // Clamp coordinates inside the desktop boundaries
+        const x = Math.max(0, Math.min(rect.width, e.clientX - rect.left));
+        const y = Math.max(0, Math.min(rect.height, e.clientY - rect.top));
+        setSelectionCurrent({ x, y });
+      });
     };
 
     const handleMouseUp = () => {
       setIsSelecting(false);
+      if (rId) cancelAnimationFrame(rId);
     };
 
-    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mousemove", handleMouseMove, { passive: true });
     window.addEventListener("mouseup", handleMouseUp);
 
     return () => {
       window.removeEventListener("mousemove", handleMouseMove);
       window.removeEventListener("mouseup", handleMouseUp);
+      if (rId) cancelAnimationFrame(rId);
     };
   }, [isSelecting]);
 
@@ -176,6 +228,11 @@ export const Desktop: React.FC = () => {
   };
 
   const enableImmersiveMode = () => {
+    // Save user preference in local storage & session storage for future visits
+    localStorage.setItem("immersive_mode_preference", "accepted");
+    localStorage.setItem("dismiss_shortcut_tip", "true");
+    sessionStorage.setItem("dismiss-shortcut-tip", "true");
+
     if (!document.fullscreenElement) {
       document.documentElement.requestFullscreen()
         .then(() => {
@@ -187,8 +244,20 @@ export const Desktop: React.FC = () => {
           }
           setShowShortcutNotification(false);
         })
-        .catch((err) => console.error("Error entering fullscreen", err));
+        .catch((err) => {
+          console.error("Error entering fullscreen", err);
+          setShowShortcutNotification(false);
+        });
+    } else {
+      setShowShortcutNotification(false);
     }
+  };
+
+  const dismissNotification = () => {
+    setShowShortcutNotification(false);
+    localStorage.setItem("dismiss_shortcut_tip", "true");
+    sessionStorage.setItem("dismiss-shortcut-tip", "true");
+    localStorage.setItem("immersive_mode_preference", "dismissed");
   };
 
   const handleContextMenu = (e: React.MouseEvent) => {
@@ -251,6 +320,8 @@ export const Desktop: React.FC = () => {
         openWindow("browser", "The Internet", { x: currentX, y: currentY });
       } else if (item.content === "app:contact") {
         openWindow("contact", "Contact Me", { x: currentX, y: currentY });
+      } else if (item.content === "app:mail") {
+        openWindow("mail", "Mail", { x: currentX, y: currentY });
       } else if (item.content === "app:typing-game") {
         openWindow("typing-game", "Typing Master", { x: currentX, y: currentY });
       } else if (item.content === "app:word-processor") {
@@ -407,6 +478,8 @@ export const Desktop: React.FC = () => {
             key={item.id}
             item={item}
             index={index}
+            winWidth={winSize.width}
+            winHeight={winSize.height}
             isSelected={selectedIconIds.includes(item.id)}
             onSelect={(e) => {
               e.stopPropagation();
@@ -456,55 +529,63 @@ export const Desktop: React.FC = () => {
         />
       )}
 
-      {/* Shortcut Notification Toast */}
+      {/* Windows 11 Action Center Style Notification Toast (Hovering above taskbar) */}
       {showShortcutNotification && (
         <motion.div
-          initial={{ opacity: 0, x: 100, y: 0 }}
-          animate={{ opacity: 1, x: 0, y: 0 }}
-          exit={{ opacity: 0, x: 100 }}
-          transition={{ type: "spring", stiffness: 300, damping: 25 }}
-          className="fixed bottom-14 right-4 z-[9999] max-w-sm bg-white/95 dark:bg-[#1a1f26]/95 border border-black/10 dark:border-white/10 rounded-2xl shadow-2xl p-4.5 select-none pointer-events-auto backdrop-blur-md text-zinc-800 dark:text-zinc-200"
+          initial={{ opacity: 0, x: 80, y: 20, scale: 0.95 }}
+          animate={{ opacity: 1, x: 0, y: 0, scale: 1 }}
+          exit={{ opacity: 0, x: 80, scale: 0.95 }}
+          transition={{ type: "spring", stiffness: 350, damping: 28 }}
+          className="fixed bottom-14 right-4 z-[99999] max-w-sm w-[calc(100vw-2rem)] sm:w-[380px] bg-[#f9f9f9]/92 dark:bg-[#1f232b]/92 border border-black/10 dark:border-white/10 rounded-2xl shadow-[0_16px_40px_rgba(0,0,0,0.3)] p-4 select-none pointer-events-auto backdrop-blur-2xl text-zinc-800 dark:text-zinc-200 transition-all hover:border-blue-500/40"
         >
-          <div className="flex gap-3">
-            <div className="w-9 h-9 rounded-lg bg-blue-500/10 dark:bg-blue-500/20 flex items-center justify-center text-blue-500 shrink-0 mt-0.5 animate-pulse">
-              <Keyboard className="w-5 h-5" />
-            </div>
-            <div className="flex-1 flex flex-col gap-1.5">
-              <div className="flex items-center justify-between">
-                <span className="font-bold text-[10px] tracking-tight uppercase opacity-55">System Assistant</span>
-                <button 
-                  onClick={() => {
-                    setShowShortcutNotification(false);
-                    sessionStorage.setItem("dismiss-shortcut-tip", "true");
-                  }}
-                  className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-100 text-xs font-semibold p-0.5"
-                >
-                  ✕
-                </button>
+          <div className="flex flex-col gap-2.5">
+            {/* Windows 11 Toast Header */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="w-5 h-5 rounded-md bg-blue-600 flex items-center justify-center text-white shadow-sm">
+                  <Keyboard className="w-3.5 h-3.5" />
+                </div>
+                <span className="font-bold text-[10px] tracking-wider uppercase text-zinc-500 dark:text-zinc-400">
+                  Windows System Assistant
+                </span>
+                <span className="text-[10px] text-zinc-400 dark:text-zinc-500">
+                  • just now
+                </span>
               </div>
+              <button 
+                onClick={dismissNotification}
+                className="w-6 h-6 rounded-md flex items-center justify-center text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-100 hover:bg-black/5 dark:hover:bg-white/10 text-xs font-semibold transition-colors cursor-default"
+                title="Dismiss"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Content Body */}
+            <div className="flex flex-col gap-1">
               <span className="font-bold text-sm leading-tight text-zinc-900 dark:text-white">
                 Shortcut Conflict Detected?
               </span>
               <p className="text-xs text-zinc-600 dark:text-zinc-300 leading-relaxed">
-                Standard keys like <code className="bg-black/5 dark:bg-white/10 px-1 py-0.5 rounded font-mono">Win+E</code> and <code className="bg-black/5 dark:bg-white/10 px-1 py-0.5 rounded font-mono">Alt+Tab</code> are captured by your computer. Enable **Immersive Mode** to lock keys inside this website.
+                Standard keys like <kbd className="px-1.5 py-0.5 rounded bg-black/5 dark:bg-white/10 font-mono text-[11px] font-semibold border border-black/10 dark:border-white/10">Win+E</kbd> and <kbd className="px-1.5 py-0.5 rounded bg-black/5 dark:bg-white/10 font-mono text-[11px] font-semibold border border-black/10 dark:border-white/10">Alt+Tab</kbd> are captured by your computer. Enable **Immersive Mode** to lock shortcuts & go Fullscreen inside this website.
               </p>
-              <div className="flex gap-2 mt-1">
-                <button
-                  onClick={enableImmersiveMode}
-                  className="bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors cursor-default outline-none shadow-sm"
-                >
-                  Enable Immersive Mode
-                </button>
-                <button
-                  onClick={() => {
-                    setShowShortcutNotification(false);
-                    sessionStorage.setItem("dismiss-shortcut-tip", "true");
-                  }}
-                  className="bg-black/5 hover:bg-black/10 dark:bg-white/5 dark:hover:bg-white/10 text-zinc-700 dark:text-zinc-300 text-xs font-semibold px-2.5 py-1.5 rounded-lg transition-colors cursor-default outline-none"
-                >
-                  Dismiss
-                </button>
-              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex items-center gap-2 pt-1.5">
+              <button
+                onClick={enableImmersiveMode}
+                className="flex-1 flex items-center justify-center gap-1.5 bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white text-xs font-semibold px-3.5 py-2 rounded-xl transition-all shadow-md shadow-blue-600/20 active:scale-95 cursor-default outline-none"
+              >
+                <Maximize2 className="w-3.5 h-3.5" />
+                <span>Enable Immersive Mode</span>
+              </button>
+              <button
+                onClick={dismissNotification}
+                className="bg-black/5 hover:bg-black/10 dark:bg-white/5 dark:hover:bg-white/10 text-zinc-700 dark:text-zinc-300 text-xs font-semibold px-3.5 py-2 rounded-xl transition-colors cursor-default outline-none active:scale-95"
+              >
+                Dismiss
+              </button>
             </div>
           </div>
         </motion.div>
@@ -521,29 +602,18 @@ export const Desktop: React.FC = () => {
   );
 };
 
-const DesktopIcon: React.FC<{ 
+const DesktopIcon = React.memo<{ 
   item: FileSystemItem; 
   index: number;
+  winWidth: number;
+  winHeight: number;
   isSelected: boolean;
   onSelect: (e: React.MouseEvent) => void;
   onDoubleClick: () => void;
   onContextMenu: (e: React.MouseEvent) => void;
-}> = ({ item, index, isSelected, onSelect, onDoubleClick, onContextMenu }) => {
+}>(({ item, index, winWidth, winHeight, isSelected, onSelect, onDoubleClick, onContextMenu }) => {
   const { dispatch } = useFileSystem();
   const isMobile = useIsMobile();
-  const [winSize, setWinSize] = useState({ 
-    width: typeof window !== "undefined" ? window.innerWidth : 1024,
-    height: typeof window !== "undefined" ? window.innerHeight : 768
-  });
-
-  useEffect(() => {
-    const handleResize = () => setWinSize({ 
-      width: window.innerWidth, 
-      height: window.innerHeight 
-    });
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
   
   const iconForItem = () => {
     if (item.type === "folder") {
@@ -557,6 +627,9 @@ const DesktopIcon: React.FC<{
     }
     if (item.name === "The Internet.lnk" || item.content === "app:browser") {
       return <Globe className="w-11 h-11 text-blue-500" />;
+    }
+    if (item.name === "Mail" || item.name === "Mail.lnk" || item.content === "app:mail") {
+      return <Mail className="w-11 h-11 text-blue-500" />;
     }
     if (item.name === "Contact.lnk" || item.content === "app:contact") {
       return <Mail className="w-11 h-11 text-emerald-500" />;
@@ -591,13 +664,13 @@ const DesktopIcon: React.FC<{
   const PADDING = 15;
 
   // Align in vertical columns, starting from top-right and moving left
-  const rows = Math.max(1, Math.floor((winSize.height - 80) / (ICON_HEIGHT + GAP)));
+  const rows = Math.max(1, Math.floor((winHeight - 80) / (ICON_HEIGHT + GAP)));
   const col = Math.floor(index / rows);
   const row = index % rows;
 
   const defaultX = isMobile
     ? col * (ICON_WIDTH + GAP) + PADDING
-    : winSize.width - (col + 1) * (ICON_WIDTH + GAP) - PADDING + GAP;
+    : winWidth - (col + 1) * (ICON_WIDTH + GAP) - PADDING + GAP;
     
   const defaultY = row * (ICON_HEIGHT + GAP) + PADDING;
 
@@ -646,4 +719,6 @@ const DesktopIcon: React.FC<{
       </div>
     </motion.div>
   );
-};
+});
+
+DesktopIcon.displayName = "DesktopIcon";

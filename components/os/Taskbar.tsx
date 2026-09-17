@@ -914,6 +914,8 @@ const WindowIcon: React.FC<{ type: string; className?: string }> = ({ type, clas
       return <GitBranch className={cn("text-purple-600", className)} />;
     case "contact":
       return <Mail className={cn("text-emerald-600", className)} />;
+    case "mail":
+      return <Mail className={cn("text-blue-500", className)} />;
     case "notepad":
       return <FileText className={cn("text-amber-600", className)} />;
     case "calculator":

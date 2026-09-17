@@ -29,7 +29,7 @@ type FileSystemAction =
   | { type: "RESET_ALL_POSITIONS"; payload: { parentId: string } };
 
 // Bump this to force a reset of stale local storage caches
-const CURRENT_VERSION = 25;
+const CURRENT_VERSION = 26;
 
 const ABOUT_ME_TXT = `Hi! I'm Pujan Joshi, a passionate React and TypeScript Frontend Engineer.
 I specialize in building rich, interactive, and high-performance web applications with stunning user interfaces and smooth user experiences.
@@ -198,6 +198,7 @@ Just upload your files here and it will be saved.`, createdAt: Date.now() },
     },
 
     shortcut_txt: { id: "shortcut_txt", name: "shortcut.txt", type: "file", parentId: "desktop", content: SHORTCUTS_TXT, createdAt: Date.now() },
+    mail_lnk: { id: "mail_lnk", name: "Mail", type: "file", parentId: "desktop", content: "app:mail", createdAt: Date.now() },
     internet_lnk: { id: "internet_lnk", name: "Browser", type: "file", parentId: "desktop", content: "app:browser", createdAt: Date.now() },
     typing_game_lnk: { id: "typing_game_lnk", name: "Typing Game", type: "file", parentId: "desktop", content: "app:typing-game", createdAt: Date.now() },
     minesweeper_lnk: { id: "minesweeper_lnk", name: "Minesweeper", type: "file", parentId: "desktop", content: "app:minesweeper", createdAt: Date.now() },

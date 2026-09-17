@@ -38,6 +38,7 @@ const MusicPlayer = React.lazy(() => import("@/components/apps/MusicPlayer").the
 const VideoPlayer = React.lazy(() => import("@/components/apps/VideoPlayer").then(m => ({ default: m.VideoPlayer })));
 const WordProcessor = React.lazy(() => import("@/components/apps/WordProcessor").then(m => ({ default: m.WordProcessor })));
 const Minesweeper = React.lazy(() => import("@/components/apps/Minesweeper").then(m => ({ default: m.Minesweeper })));
+const MailApp = React.lazy(() => import("@/components/apps/MailApp").then(m => ({ default: m.MailApp })));
 
 export const WindowManager: React.FC = () => {
   const { windows, activeWindowId, openWindow, closeWindow, focusWindow, restoreWindow, minimizeWindow } = useWindows();
@@ -244,6 +245,8 @@ function getWindowIcon(type: string, title: string) {
       return <FileText className="w-4 h-4 text-blue-600 dark:text-blue-400" />;
     case "minesweeper":
       return <Bomb className="w-4 h-4 text-amber-600 dark:text-amber-400" />;
+    case "mail":
+      return <Mail className="w-4 h-4 text-blue-600 dark:text-blue-400" />;
     default:
       return <Monitor className="w-4 h-4 text-zinc-600 dark:text-zinc-400" />;
   }
@@ -263,6 +266,8 @@ function renderWindowContent(window: WindowInstance, onClose: () => void) {
       return <ProjectsWindow />;
     case "contact":
       return <ContactWindow />;
+    case "mail":
+      return <MailApp />;
     case "notepad":
       return (
         <Notepad 

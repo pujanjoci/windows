@@ -24,7 +24,8 @@ import {
   Music,
   Video,
   Bomb,
-  PenTool
+  PenTool,
+  Mail
 } from "lucide-react";
 
 const GithubIcon: React.FC<{ className?: string }> = ({ className }) => (
@@ -123,6 +124,8 @@ export const FolderWindow: React.FC<{ initialPathId?: string }> = ({ initialPath
         openWindow("browser", "The Internet");
       } else if (item.content === "app:contact") {
         openWindow("contact", "Contact Me");
+      } else if (item.content === "app:mail" || item.name === "Mail") {
+        openWindow("mail", "Mail");
       } else if (item.content === "app:word-processor") {
         openWindow("word-processor", "Document Editor");
       } else if (item.content === "app:minesweeper") {
@@ -587,6 +590,8 @@ const FolderItemGrid: React.FC<{
           ) : (
             <Folder className="w-11 h-11 text-blue-500 dark:text-blue-400 fill-blue-500/10 group-hover:scale-105 transition-transform" />
           )
+        ) : item.content === "app:mail" || item.name === "Mail" ? (
+          <Mail className="w-11 h-11 text-blue-500 group-hover:scale-105 transition-transform" />
         ) : item.content === "app:word-processor" || item.name.endsWith(".docx") ? (
           <PenTool className="w-11 h-11 text-blue-500 group-hover:scale-105 transition-transform" />
         ) : item.content === "app:minesweeper" ? (
